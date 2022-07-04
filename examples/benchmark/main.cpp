@@ -1,9 +1,9 @@
-#include <UnorderedConcurrentMap.h>
+#include <ShardedUnorderedConcurrentMap.h>
 #include <cstdlib>
 #include <iostream>
 
 int main() {
-  Concurrent::UnorderedMap<std::string, std::string> myMap{
+  Concurrent::ShardedUnorderedMap<std::string, std::string> myMap{
       {"foo", "bar"},
       {"baz", "baz"},
       {"lorem", "ipsum"},

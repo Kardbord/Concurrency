@@ -124,7 +124,7 @@ namespace Concurrent {
     }
     void insert(std::initializer_list<value_type> ilist) {
       auto lock = lock_for_writing();
-      void m_map.insert(ilist);
+      (void) m_map.insert(ilist);
     }
     // Returns a pair consisting of a const_iterator to the inserted element
     // (or to the element that prevented the insertion) and a bool denoting
@@ -162,7 +162,7 @@ namespace Concurrent {
     template <class... Args>
     bool emplace(Args &&...args) {
       auto lock = lock_for_writing();
-      (void) m_map.emplace(args...);
+      return m_map.emplace(args...).second;
     }
 
     template <class... Args>
