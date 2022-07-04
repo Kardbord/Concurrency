@@ -68,7 +68,7 @@ namespace Concurrent {
 
     // ------------------------------- Iterators -------------------------------- //
     /*
-    Iterators are not supported due to the footgun they present
+    begin(), end(), cbegin(), and cend() iterators are not supported due to the footgun they present
     to concurrent access.
     */
 
