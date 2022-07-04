@@ -7,9 +7,10 @@
 namespace Concurrent {
 
   // This class provides a thread-safe unordered map with most of the same functionality as
-  // std::unordered_map. Most functions that include an iterator in the return type have been
-  // updated to instead return const_iterator to remove the footgun of allowing access to
-  // unprotected iterators.
+  // std::unordered_map. However, iterator access has been removed in order to preserve
+  // thread-safety. No direct access to begin() or end() iterators is provided. Iterators
+  // have also been removed from the return type of any function which typically includes
+  // them.
   //
   // Aside from the above, functions which behave differently than their std::unordered_map
   // counterpart of the same name are documented with comments, as are functions that
@@ -90,120 +91,118 @@ namespace Concurrent {
       m_map.clear();
     }
 
-    std::pair<const_iterator, bool> insert(const value_type &value) {
+    bool insert(const value_type &value) {
       auto lock = lock_for_writing();
-      return m_map.insert(value);
+      return m_map.insert(value).second;
     }
-    std::pair<const_iterator, bool> insert(value_type &&value) {
+    bool insert(value_type &&value) {
       auto lock = lock_for_writing();
-      return m_map.insert(value);
-    }
-    template <class P>
-    std::pair<const_iterator, bool> insert(P &&value) {
-      auto lock = lock_for_writing();
-      return m_map.insert(value);
-    }
-    const_iterator insert(const_iterator hint, const value_type &value) {
-      auto lock = lock_for_writing();
-      return m_map.insert(hint, value);
-    }
-    const_iterator insert(const_iterator hint, value_type &&value) {
-      auto lock = lock_for_writing();
-      return m_map.insert(hint, value);
+      return m_map.insert(value).second;
     }
     template <class P>
-    const_iterator insert(const_iterator hint, P &&value) {
+    bool insert(P &&value) {
       auto lock = lock_for_writing();
-      return m_map.insert(hint, value);
+      return m_map.insert(value).second;
+    }
+    void insert(const_iterator hint, const value_type &value) {
+      auto lock = lock_for_writing();
+      (void) m_map.insert(hint, value);
+    }
+    void insert(const_iterator hint, value_type &&value) {
+      auto lock = lock_for_writing();
+      (void) m_map.insert(hint, value);
+    }
+    template <class P>
+    void insert(const_iterator hint, P &&value) {
+      auto lock = lock_for_writing();
+      (void) m_map.insert(hint, value);
     }
     template <class InputIt>
     void insert(InputIt first, InputIt last) {
       auto lock = lock_for_writing();
-      return m_map.insert(first, last);
+      m_map.insert(first, last);
     }
     void insert(std::initializer_list<value_type> ilist) {
       auto lock = lock_for_writing();
-      return m_map.insert(ilist);
+      void m_map.insert(ilist);
     }
     // Returns a pair consisting of a const_iterator to the inserted element
     // (or to the element that prevented the insertion) and a bool denoting
     // whether the insertion took place.
-    std::pair<const_iterator, bool> insert(node_type &&nh) {
+    bool insert(node_type &&nh) {
       auto lock = lock_for_writing();
-
-      auto rv = m_map.insert(nh);
-      return std::make_pair<const_iterator, bool>(rv.position, rv.inserted);
+      return m_map.insert(nh).inserted;
     }
-    const_iterator insert(const_iterator hint, node_type &&nh) {
+    void insert(const_iterator hint, node_type &&nh) {
       auto lock = lock_for_writing();
-      return m_map.insert(nh);
+      (void) m_map.insert(nh);
     }
 
     template <class M>
-    std::pair<const_iterator, bool> insert_or_assign(const Key &k, M &&obj) {
+    bool insert_or_assign(const Key &k, M &&obj) {
       auto lock = lock_for_writing();
-      return m_map.insert_or_assign(k, obj);
+      return m_map.insert_or_assign(k, obj).second;
     }
     template <class M>
-    std::pair<const_iterator, bool> insert_or_assign(Key &&k, M &&obj) {
+    bool insert_or_assign(Key &&k, M &&obj) {
       auto lock = lock_for_writing();
-      return m_map.insert_or_assign(k, obj);
+      return m_map.insert_or_assign(k, obj).second;
     }
     template <class M>
-    const_iterator insert_or_assign(const_iterator hint, const Key &k, M &&obj) {
+    void insert_or_assign(const_iterator hint, const Key &k, M &&obj) {
       auto lock = lock_for_writing();
-      return m_map.insert_or_assign(hint, k, obj);
+      (void) m_map.insert_or_assign(hint, k, obj);
     }
     template <class M>
-    const_iterator insert_or_assign(const_iterator hint, Key &&k, M &&obj) {
+    void insert_or_assign(const_iterator hint, Key &&k, M &&obj) {
       auto lock = lock_for_writing();
-      return m_map.insert_or_assign(hint, k, obj);
+      (void) m_map.insert_or_assign(hint, k, obj);
     }
 
     template <class... Args>
-    std::pair<const_iterator, bool> emplace(Args &&...args) {
+    bool emplace(Args &&...args) {
       auto lock = lock_for_writing();
-      return m_map.emplace(args...);
+      (void) m_map.emplace(args...);
     }
 
     template <class... Args>
-    const_iterator emplace_hint(const_iterator hint, Args &&...args) {
+    void emplace_hint(const_iterator hint, Args &&...args) {
       auto lock = lock_for_writing();
-      return m_map.emplace_hint(hint, args...);
+      (void) m_map.emplace_hint(hint, args...);
     }
 
     template <class... Args>
-    std::pair<const_iterator, bool> try_emplace(const Key &k, Args &&...args) {
+    bool try_emplace(const Key &k, Args &&...args) {
       auto lock = lock_for_writing();
-      return m_map.try_emplace(k, args...);
+      return m_map.try_emplace(k, args...).second;
     }
     template <class... Args>
-    std::pair<const_iterator, bool> try_emplace(Key &&k, Args &&...args) {
+    bool try_emplace(Key &&k, Args &&...args) {
       auto lock = lock_for_writing();
-      return m_map.try_emplace(k, args...);
+      return m_map.try_emplace(k, args...).second;
     }
     template <class... Args>
-    const_iterator try_emplace(const_iterator hint, const Key &k, Args &&...args) {
+    void try_emplace(const_iterator hint, const Key &k, Args &&...args) {
       auto lock = lock_for_writing();
-      return m_map.try_emplace(hint, k, args...);
+      (void) m_map.try_emplace(hint, k, args...);
     }
     template <class... Args>
-    const_iterator try_emplace(const_iterator hint, Key &&k, Args &&...args) {
+    void try_emplace(const_iterator hint, Key &&k, Args &&...args) {
       auto lock = lock_for_writing();
-      return m_map.try_emplace(hint, k, args...);
+      (void) m_map.try_emplace(hint, k, args...);
     }
 
-    const_iterator erase(iterator pos) {
+    void erase(iterator pos) {
       auto lock = lock_for_writing();
-      return m_map.erase(pos);
+      (void) m_map.erase(pos);
     }
-    const_iterator erase(const_iterator pos) {
+    void erase(const_iterator pos) {
       auto lock = lock_for_writing();
-      return m_map.erase(pos);
+      (void) m_map.erase(pos);
     }
-    const_iterator erase(const_iterator first, const_iterator last) {
+    void erase(const_iterator first, const_iterator last) {
       auto lock = lock_for_writing();
-      return m_map.erase(first, last);
+      (void) m_map.erase(first, last);
     }
     size_type erase(const Key &key) {
       auto lock = lock_for_writing();
@@ -256,35 +255,36 @@ namespace Concurrent {
     }
 
     // ------------------------------ Accessors --------------------------------- //
-    const Val &at(const Key &key) {
+    // Returns a copy of the element mapped to
+    // the provided key. Does bounds checking.
+    Val at(const Key &key) {
       auto lock = lock_for_reading();
       return m_map.at(key);
     }
-    const Val &at(const Key &&key) {
+    // Returns a copy of the element mapped to
+    // the provided key. Does bounds checking.
+    Val at(const Key &&key) {
       auto lock = lock_for_reading();
       return m_map.at(key);
     }
 
-    // Returns a constant reference to the element mapped to
-    // the provided key.
-    const Val &operator[](const Key &key) { return at(key); }
-    // Returns a constant reference to the element mapped to
-    // the provided key.
-    const Val &operator[](Key &&key) { return at(key); }
+    // Returns a copy of the element mapped to
+    // the provided key. Does bounds checking.
+    Val operator[](const Key &key) { return at(key); }
+    // Returns a copy of the element mapped to
+    // the provided key. Does bounds checking.
+    Val operator[](Key &&key) { return at(key); }
 
     size_type count(const Key &key) {
       auto lock = lock_for_reading();
       return m_map.count(key);
     }
 
-    const_iterator find(const Key &key) {
+    // Returns a bool indicating whether or not the
+    // provided key is present in the map.
+    bool find(const Key &key) {
       auto lock = lock_for_reading();
-      return m_map.find(key);
-    }
-
-    std::pair<const_iterator, const_iterator> equal_range(const Key &key) {
-      auto lock = lock_for_reading();
-      return m_map.equal_range(key);
+      return m_map.find(key) != m_map.end();
     }
 
     // Returns a non-thread-safe copy of the underlying map.
