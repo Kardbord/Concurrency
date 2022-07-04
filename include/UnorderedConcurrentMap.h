@@ -15,8 +15,6 @@ namespace Concurrent {
   // counterpart of the same name are documented with comments, as are functions that
   // do not exist for std::unordered_map.
   //
-  // TODO: Provide same constructors as std::unordered_map.
-  // TODO: Provide same operator= overloads as std::unordered_map.
   // TODO: Provite cbegin and cend?
   // TODO: Provite cbegin and cend for buckets?
   // TODO: Write unit tests.
@@ -53,13 +51,18 @@ namespace Concurrent {
     // using insert_return_type   = typename internal_map_type::insert_return_type;
 
     // ------------------------------ Constructors ------------------------------ //
-    UnorderedMap()  = default;
-    ~UnorderedMap() = default;
+    UnorderedMap() = default;
+    UnorderedMap(const UnorderedMap &other) : m_map(other.data()) {}
+    UnorderedMap(const UnorderedMap &other, const Allocator &alloc) : m_map(other.data(), alloc) {}
+    UnorderedMap(UnorderedMap &&other) : m_map(other.data()) {}
+    UnorderedMap(UnorderedMap &&other, const Allocator &alloc) : m_map(other.data(), alloc) {}
+    UnorderedMap(std::initializer_list<value_type> init) : m_map(init.begin(), init.end()) {}
 
-    UnorderedMap(const UnorderedMap &)            = delete;
-    UnorderedMap(UnorderedMap &&)                 = delete;
-    UnorderedMap &operator=(const UnorderedMap &) = delete;
-    UnorderedMap &operator=(UnorderedMap &&)      = delete;
+    UnorderedMap &operator=(const UnorderedMap &other) { return UnorderedMap(other); }
+    UnorderedMap &operator=(UnorderedMap &&other) noexcept { return UnorderedMap(other); }
+    UnorderedMap &operator=(std::initializer_list<value_type> ilist) { return UnorderedMap(ilist); }
+
+    ~UnorderedMap() = default;
 
     allocator_type get_allocator() const { return m_map.get_allocator(); }
 
