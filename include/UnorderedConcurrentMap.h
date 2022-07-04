@@ -258,6 +258,10 @@ namespace Concurrent {
       auto lock = lock_for_reading();
       return m_map.at(key);
     }
+    const Val &at(const Key &&key) const {
+      auto lock = lock_for_reading();
+      return m_map.at(key);
+    }
 
     // Returns a constant reference to the element mapped to
     // the provided key.
