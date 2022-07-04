@@ -230,25 +230,29 @@ namespace Concurrent {
       return m_map.extract(k);
     }
 
-    template <class H2, class P2>
-    void merge(std::unordered_map<Key, Val, H2, P2, Allocator> &source) {
+    void merge(internal_map_type &source) {
       auto lock = lock_for_writing();
       m_map.merge(source);
     }
-    template <class H2, class P2>
-    void merge(std::unordered_map<Key, Val, H2, P2, Allocator> &&source) {
+    void merge(internal_map_type &&source) {
       auto lock = lock_for_writing();
       m_map.merge(source);
     }
-    template <class H2, class P2>
-    void merge(std::unordered_multimap<Key, Val, H2, P2, Allocator> &source) {
+    void merge(std::unordered_multimap<Key, Val, Hash, Pred, Allocator> &source) {
       auto lock = lock_for_writing();
       m_map.merge(source);
     }
-    template <class H2, class P2>
-    void merge(std::unordered_multimap<Key, Val, H2, P2, Allocator> &&source) {
+    void merge(std::unordered_multimap<Key, Val, Hash, Pred, Allocator> &&source) {
       auto lock = lock_for_writing();
       m_map.merge(source);
+    }
+    void merge(UnorderedMap<Key, Val, Hash, Pred, Allocator> &source) {
+      auto lock = lock_for_writing();
+      m_map.merge(source.data());
+    }
+    void merge(UnorderedMap<Key, Val, Hash, Pred, Allocator> &&source) {
+      auto lock = lock_for_writing();
+      m_map.merge(source.data());
     }
 
     // ------------------------------ Accessors --------------------------------- //
