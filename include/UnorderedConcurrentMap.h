@@ -15,8 +15,6 @@ namespace Concurrent {
   // counterpart of the same name are documented with comments, as are functions that
   // do not exist for std::unordered_map.
   //
-  // TODO: Provite cbegin and cend?
-  // TODO: Provite cbegin and cend for buckets?
   // TODO: Write unit tests.
   // TODO: Benchmark.
   //
