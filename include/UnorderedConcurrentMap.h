@@ -252,68 +252,68 @@ namespace Concurrent {
     }
 
     // ------------------------------ Accessors --------------------------------- //
-    const Val &at(const Key &key) const {
+    const Val &at(const Key &key) {
       auto lock = lock_for_reading();
       return m_map.at(key);
     }
-    const Val &at(const Key &&key) const {
+    const Val &at(const Key &&key) {
       auto lock = lock_for_reading();
       return m_map.at(key);
     }
 
     // Returns a constant reference to the element mapped to
     // the provided key.
-    const Val &operator[](const Key &key) const { return at(key); }
+    const Val &operator[](const Key &key) { return at(key); }
     // Returns a constant reference to the element mapped to
     // the provided key.
-    const Val &operator[](Key &&key) const { return at(key); }
+    const Val &operator[](Key &&key) { return at(key); }
 
-    size_type count(const Key &key) const {
+    size_type count(const Key &key) {
       auto lock = lock_for_reading();
       return m_map.count(key);
     }
 
-    const_iterator find(const Key &key) const {
+    const_iterator find(const Key &key) {
       auto lock = lock_for_reading();
       return m_map.find(key);
     }
 
-    std::pair<const_iterator, const_iterator> equal_range(const Key &key) const {
+    std::pair<const_iterator, const_iterator> equal_range(const Key &key) {
       auto lock = lock_for_reading();
       return m_map.equal_range(key);
     }
 
     // Returns a non-thread-safe copy of the underlying map.
-    internal_map_type data() const {
+    internal_map_type data() {
       auto lock = lock_for_reading();
       return m_map;
     }
 
     // --------------------------- Bucket Interface ----------------------------- //
-    size_type bucket_count() const {
+    size_type bucket_count() {
       auto lock = lock_for_reading();
       return m_map.bucket_count();
     }
 
     size_type max_bucket_count() const { return m_map.max_bucket_count(); }
 
-    size_type bucket_size(size_type n) const {
+    size_type bucket_size(size_type n) {
       auto lock = lock_for_reading();
       return m_map.bucket_size(n);
     }
 
-    size_type bucket(const Key &key) const {
+    size_type bucket(const Key &key) {
       auto lock = lock_for_reading();
       return m_map.bucket(key);
     }
 
     // ------------------------------ Hash Policy ------------------------------- //
-    float load_factor() const {
+    float load_factor() {
       auto lock = lock_for_reading();
       return m_map.lock_for_reading();
     }
 
-    float max_load_factor() const {
+    float max_load_factor() {
       auto lock = lock_for_reading();
       return m_map.max_load_factor();
     }
