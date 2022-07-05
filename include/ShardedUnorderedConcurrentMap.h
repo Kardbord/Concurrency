@@ -61,17 +61,17 @@ namespace Concurrent {
 
     ~ShardedUnorderedMap() = default;
 
-    allocator_type get_allocator() const { return m_shards.a(0).get_allocator(); }
+    allocator_type get_allocator() const { return m_shards.at(0).get_allocator(); }
 
     // -------------------------------- Capacity -------------------------------- //
-    bool empty() const noexcept {
+    bool empty() noexcept {
       for (auto &s: m_shards) {
         if (!s.empty()) return false;
       }
       return true;
     }
 
-    size_type size() const noexcept {
+    size_type size() noexcept {
       size_type size = 0;
       for (auto &s: m_shards) {
         size += s.size();

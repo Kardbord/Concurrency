@@ -72,12 +72,12 @@ namespace Concurrent {
     */
 
     // -------------------------------- Capacity -------------------------------- //
-    bool empty() const noexcept {
+    bool empty() noexcept {
       auto l = lock_for_reading();
       return m_map.empty();
     }
 
-    size_type size() const noexcept {
+    size_type size() noexcept {
       auto l = lock_for_reading();
       return m_map.size();
     }
