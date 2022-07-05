@@ -21,6 +21,7 @@ namespace Concurrent {
   // TODO: Benchmark.
   //
   // https://en.cppreference.com/w/cpp/container/unordered_map
+  // TODO: Support emplace() and try_emplace().
   template <class Key, class Val, uint32_t ShardCount = DefaultUnorderedMapShardCount, class Hash = std::hash<Key>, class Pred = std::equal_to<Key>, class Allocator = std::allocator<std::pair<const Key, Val>>>
   class ShardedUnorderedMap {
   public:
@@ -49,11 +50,9 @@ namespace Concurrent {
     ShardedUnorderedMap() { validate_shard_count(); }
     ShardedUnorderedMap(const ShardedUnorderedMap &other) : m_shards(other.m_shards) { validate_shard_count(); }
     ShardedUnorderedMap(ShardedUnorderedMap &&other) : m_shards(other.m_shards) { validate_shard_count(); }
-    ShardedUnorderedMap(std::initializer_list<value_type> init) {
+    ShardedUnorderedMap(std::initializer_list<value_type> ilist) {
       validate_shard_count();
-      for (auto const &el: init) {
-        (void) insert(el);
-      }
+      insert(ilist);
     }
 
     ShardedUnorderedMap &operator=(const ShardedUnorderedMap &other) { return ShardedUnorderedMap(other); }
@@ -66,7 +65,7 @@ namespace Concurrent {
 
     // -------------------------------- Capacity -------------------------------- //
     bool empty() const noexcept {
-      for (auto const &s: m_shards) {
+      for (auto &s: m_shards) {
         if (!s.empty()) return false;
       }
       return true;
@@ -81,10 +80,107 @@ namespace Concurrent {
     }
 
     // ------------------------------- Modifiers -------------------------------- //
+
+    void clear() noexcept {
+      for (auto &s: m_shards) {
+        s.clear();
+      }
+    }
+
     bool insert(const value_type &value) { return get_shard(value.first).insert(value); }
+    bool insert(value_type &&value) { return get_shard(value.first).insert(value); }
+    void insert(std::initializer_list<value_type> ilist) {
+      for (auto const &el: ilist) {
+        (void) insert(el);
+      }
+    }
+    bool insert(node_type &&nh) { return insert(nh.value()); }
+
+    template <class M>
+    bool insert_or_assign(const Key &k, M &&obj) {
+      return get_shard(k).insert_or_assign(k, obj);
+    }
+    template <class M>
+    bool insert_or_assign(Key &&k, M &&obj) {
+      return get_shard(k).insert_or_assign(k, obj);
+    }
+
+    size_type erase(const Key &key) { return get_shard(key).erase(key); }
+
+    void swap(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &other) noexcept {
+      for (auto i = 0; i < ShardCount; ++i) {
+        this->m_shards[i].swap(other.m_shards[i]);
+      }
+    }
+
+    void swap(internal_map_type &other) noexcept {
+      internal_map_type tmp = other;
+      other.clear();
+      for (auto &s: m_shards) {
+        other.merge(s.data());
+      }
+      this->clear();
+      for (auto const &el: tmp) {
+        this->insert(el);
+      }
+    }
+
+    node_type extract(const Key &k) { return get_shard(k).extract(k); }
+
+    void merge(internal_map_type &source) {
+      for (auto const &el: source) {
+        (void) insert(el);
+      }
+    }
+    void merge(internal_map_type &&source) {
+      for (auto const &&el: source) {
+        (void) insert(el);
+      }
+    }
+    void merge(std::unordered_multimap<Key, Val, Hash, Pred, Allocator> &source) {
+      for (auto const &el: source) {
+        (void) insert(el);
+      }
+    }
+    void merge(std::unordered_multimap<Key, Val, Hash, Pred, Allocator> &&source) {
+      for (auto const &&el: source) {
+        (void) insert(el);
+      }
+    }
+    void merge(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &source) {
+      for (auto i = 0; i < ShardCount; ++i) {
+        this->merge(source.m_shards[i]);
+      }
+    }
+    void merge(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &&source) {
+      for (auto i = 0; i < ShardCount; ++i) {
+        this->merge(source.m_shards[i]);
+      }
+    }
 
     // ------------------------------ Accessors --------------------------------- //
-    // Returns a non-thread-safe copy of the underlying data.
+    // Returns a copy of the element mapped to
+    // the provided key. Does bounds checking.
+    Val at(const Key &key) { return get_shard(key).at(key); }
+    // Returns a copy of the element mapped to
+    // the provided key. Does bounds checking.
+    Val at(const Key &&key) { return get_shard(key).at(key); }
+
+    // Returns a copy of the element mapped to
+    // the provided key. Does bounds checking.
+    Val operator[](const Key &key) { return at(key); }
+    // Returns a copy of the element mapped to
+    // the provided key. Does bounds checking.
+    Val operator[](Key &&key) { return at(key); }
+
+    size_type count(const Key &key) { return get_shard(key).count(key); }
+
+    // Returns a bool indicating whether or not the
+    // provided key is present in the map.
+    bool find(const Key &key) { return get_shard(key).find(key); }
+
+    // Returns a copy of the data in each
+    // shard as a single non-thread-safe unordered_map.
     internal_map_type data() {
       internal_map_type m;
       for (auto &s: m_shards) {
@@ -93,9 +189,55 @@ namespace Concurrent {
       return m;
     }
 
-    // --------------------------- Bucket Interface ----------------------------- //
-
     // ------------------------------ Hash Policy ------------------------------- //
+    uint32_t shard_count() const noexcept { return ShardCount; }
+
+    // Averaged load factor across all shards.
+    float load_factor() {
+      float lf = 0;
+      for (auto &s: m_shards) {
+        lf += s.load_factor();
+      }
+      return lf / ShardCount;
+    }
+
+    // Returns the load factor for a given shard.
+    // If shard_idx is greater than the number of shards,
+    // -1.0 is returned.
+    float shard_load_factor(uint32_t const shard_idx) {
+      if (shard_idx >= ShardCount) {
+        return -1.0;
+      }
+      return m_shards.at(shard_idx).load_factor();
+    }
+
+    // Returns the current maximum load factor
+    // allowed for all shards.
+    float max_load_factor() { return m_shards.at(0).load_factor(); }
+
+    // Sets the maximum load factor allowed
+    // for all shards.
+    void max_load_factor(float ml) {
+      for (auto &s: m_shards) {
+        s.max_load_factor(ml);
+      }
+    }
+
+    // For each shard, reserves at least the specified number of buckets
+    // and regenerates the hash table.
+    void rehash(size_type count) {
+      for (auto &s: m_shards) {
+        s.rehash(count);
+      }
+    }
+
+    // For each shard, reserves space for at least the specified number of
+    // elements and regenerates the hash table.
+    void reserve(size_type count) {
+      for (auto &s: m_shards) {
+        s.reserve(count);
+      }
+    }
 
     // ------------------------------- Observers -------------------------------- //
     hasher hash_function() const { return m_shards.at(0).hash_function(); }
@@ -114,5 +256,21 @@ namespace Concurrent {
   };
 
 } // namespace Concurrent
+
+template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const std::unordered_map<Key, T, Hash, KeyEqual, Alloc> &rhs) {
+  return lhs.data() == rhs.data();
+}
+
+template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const std::unordered_map<Key, T, Hash, KeyEqual, Alloc> &rhs) {
+  return !(lhs == rhs);
+}
+
+// Specializes the std::swap algorithm for ::Concurrent::ShardedUnorderedMap. Swaps the contents of lhs and rhs. Calls lhs.swap(rhs).
+template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+void swap(::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) noexcept {
+  lhs.swap(rhs);
+}
 
 #endif // SHARDED_UNORDERED_CONCURRENT_MAP

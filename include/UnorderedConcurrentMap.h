@@ -126,9 +126,6 @@ namespace Concurrent {
       auto lock = lock_for_writing();
       (void) m_map.insert(ilist);
     }
-    // Returns a pair consisting of a const_iterator to the inserted element
-    // (or to the element that prevented the insertion) and a bool denoting
-    // whether the insertion took place.
     bool insert(node_type &&nh) {
       auto lock = lock_for_writing();
       return m_map.insert(nh).inserted;
@@ -314,7 +311,7 @@ namespace Concurrent {
     // ------------------------------ Hash Policy ------------------------------- //
     float load_factor() {
       auto lock = lock_for_reading();
-      return m_map.lock_for_reading();
+      return m_map.load_factor();
     }
 
     float max_load_factor() {
