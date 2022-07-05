@@ -18,12 +18,10 @@ else()
   )
 endif()
 
-include_directories(include src)
-set("${CMAKE_PROJECT_NAME}_SRC"
+include_directories(include)
+
+set("EXAMPLE_SRC"
+  examples/main.cpp
 )
 
-set("BENCHMARK_SRC"
-  examples/benchmark/main.cpp
-)
-
-add_executable(${CMAKE_PROJECT_NAME}_benchmark ${${CMAKE_PROJECT_NAME}_SRC} ${BENCHMARK_SRC})
+add_executable(${CMAKE_PROJECT_NAME}_example ${${CMAKE_PROJECT_NAME}_SRC} ${EXAMPLE_SRC})
