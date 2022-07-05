@@ -104,24 +104,6 @@ namespace Concurrent {
       auto lock = lock_for_writing();
       return m_map.insert(value).second;
     }
-    void insert(const_iterator hint, const value_type &value) {
-      auto lock = lock_for_writing();
-      (void) m_map.insert(hint, value);
-    }
-    void insert(const_iterator hint, value_type &&value) {
-      auto lock = lock_for_writing();
-      (void) m_map.insert(hint, value);
-    }
-    template <class P>
-    void insert(const_iterator hint, P &&value) {
-      auto lock = lock_for_writing();
-      (void) m_map.insert(hint, value);
-    }
-    template <class InputIt>
-    void insert(InputIt first, InputIt last) {
-      auto lock = lock_for_writing();
-      m_map.insert(first, last);
-    }
     void insert(std::initializer_list<value_type> ilist) {
       auto lock = lock_for_writing();
       (void) m_map.insert(ilist);
@@ -129,10 +111,6 @@ namespace Concurrent {
     bool insert(node_type &&nh) {
       auto lock = lock_for_writing();
       return m_map.insert(nh).inserted;
-    }
-    void insert(const_iterator hint, node_type &&nh) {
-      auto lock = lock_for_writing();
-      (void) m_map.insert(nh);
     }
 
     template <class M>
@@ -145,27 +123,11 @@ namespace Concurrent {
       auto lock = lock_for_writing();
       return m_map.insert_or_assign(k, obj).second;
     }
-    template <class M>
-    void insert_or_assign(const_iterator hint, const Key &k, M &&obj) {
-      auto lock = lock_for_writing();
-      (void) m_map.insert_or_assign(hint, k, obj);
-    }
-    template <class M>
-    void insert_or_assign(const_iterator hint, Key &&k, M &&obj) {
-      auto lock = lock_for_writing();
-      (void) m_map.insert_or_assign(hint, k, obj);
-    }
 
     template <class... Args>
     bool emplace(Args &&...args) {
       auto lock = lock_for_writing();
       return m_map.emplace(args...).second;
-    }
-
-    template <class... Args>
-    void emplace_hint(const_iterator hint, Args &&...args) {
-      auto lock = lock_for_writing();
-      (void) m_map.emplace_hint(hint, args...);
     }
 
     template <class... Args>
@@ -178,29 +140,7 @@ namespace Concurrent {
       auto lock = lock_for_writing();
       return m_map.try_emplace(k, args...).second;
     }
-    template <class... Args>
-    void try_emplace(const_iterator hint, const Key &k, Args &&...args) {
-      auto lock = lock_for_writing();
-      (void) m_map.try_emplace(hint, k, args...);
-    }
-    template <class... Args>
-    void try_emplace(const_iterator hint, Key &&k, Args &&...args) {
-      auto lock = lock_for_writing();
-      (void) m_map.try_emplace(hint, k, args...);
-    }
 
-    void erase(iterator pos) {
-      auto lock = lock_for_writing();
-      (void) m_map.erase(pos);
-    }
-    void erase(const_iterator pos) {
-      auto lock = lock_for_writing();
-      (void) m_map.erase(pos);
-    }
-    void erase(const_iterator first, const_iterator last) {
-      auto lock = lock_for_writing();
-      (void) m_map.erase(first, last);
-    }
     size_type erase(const Key &key) {
       auto lock = lock_for_writing();
       return m_map.erase(key);
@@ -217,10 +157,6 @@ namespace Concurrent {
       m_map.swap(other);
     }
 
-    node_type extract(const_iterator position) {
-      auto lock = lock_for_writing();
-      return m_map.extract(position);
-    }
     node_type extract(const Key &k) {
       auto lock = lock_for_writing();
       return m_map.extract(k);
