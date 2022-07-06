@@ -1,11 +1,16 @@
+#include <ShardedUnorderedConcurrentMap.h>
 #include <UnorderedConcurrentMap.h>
 #include <gtest/gtest.h>
 #include <string>
 
+using ::Concurrent::ShardedUnorderedMap;
 using ::Concurrent::UnorderedMap;
 
+// Common test cases for both
+// ::Concurrent::ShardedUnorderedMap, and
+// ::Concurrent::UnorderedMap.
 template <typename T>
-class UnorderedConcurrentMapTest : public ::testing::Test {
+class CommonConcurrentUnorderedMapTests : public ::testing::Test {
 protected:
   // void SetUp() override;
   // void TearDown() override;
@@ -13,16 +18,17 @@ protected:
 
 // ------------------------ Typed Tests ------------------------ //
 
-TYPED_TEST_SUITE_P(UnorderedConcurrentMapTest);
-TYPED_TEST_P(UnorderedConcurrentMapTest, DefaultConstructor) {
-  using map_type = UnorderedMap<TypeParam, TypeParam>;
+TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests);
+TYPED_TEST_P(CommonConcurrentUnorderedMapTests, DefaultConstructor) {
+  using map_type = TypeParam;
+  using key_type = typename map_type::key_type;
   map_type umap;
   constexpr typename map_type::size_type expected_size = 0;
   ASSERT_EQ(expected_size, umap.size());
   ASSERT_TRUE(umap.empty());
 
   try {
-    umap.at(TypeParam());
+    umap.at(key_type());
     FAIL() << "Expected std::out_of_range.";
   } catch (std::out_of_range const &) {
   } catch (...) {
@@ -30,16 +36,16 @@ TYPED_TEST_P(UnorderedConcurrentMapTest, DefaultConstructor) {
   }
 
   try {
-    umap[TypeParam()];
+    umap[key_type()];
     FAIL() << "Expected std::out_of_range.";
   } catch (std::out_of_range const &) {
   } catch (...) {
     FAIL() << "Expected std::out_of_range.";
   }
 
-  EXPECT_EQ(0, umap.erase(TypeParam())) << "Expected no elements to be removed.";
-  EXPECT_EQ(0, umap.count(TypeParam())) << "Expected no elements to be found.";
-  EXPECT_FALSE(umap.find(TypeParam()));
+  EXPECT_EQ(0, umap.erase(key_type())) << "Expected no elements to be removed.";
+  EXPECT_EQ(0, umap.count(key_type())) << "Expected no elements to be found.";
+  EXPECT_FALSE(umap.find(key_type())) << "Expected no elements to be found.";
 
   auto data = umap.data();
   ASSERT_EQ(expected_size, data.size());
@@ -49,8 +55,20 @@ TYPED_TEST_P(UnorderedConcurrentMapTest, DefaultConstructor) {
   EXPECT_FALSE(umap != map_type());
 }
 
-REGISTER_TYPED_TEST_SUITE_P(UnorderedConcurrentMapTest, DefaultConstructor);
-using Types = ::testing::Types<std::string, uint32_t, int32_t, uint64_t, int64_t, size_t>;
-INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, UnorderedConcurrentMapTest, Types);
+REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, DefaultConstructor);
+using Types = ::testing::Types<                    // comments so clang-format keeps
+    UnorderedMap<std::string, uint32_t>,           // these lines broken.
+    UnorderedMap<int32_t, uint64_t>,               //
+    UnorderedMap<int64_t, size_t>,                 //
+    UnorderedMap<std::string, std::string>,        //
+    UnorderedMap<int32_t, std::string>,            //
+    UnorderedMap<int64_t, std::string>,            //
+    ShardedUnorderedMap<std::string, uint32_t>,    //
+    ShardedUnorderedMap<int32_t, uint64_t>,        //
+    ShardedUnorderedMap<int64_t, size_t>,          //
+    ShardedUnorderedMap<std::string, std::string>, //
+    ShardedUnorderedMap<int32_t, std::string>,     //
+    ShardedUnorderedMap<int64_t, std::string>>;    //
+INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, CommonConcurrentUnorderedMapTests, Types);
 
 // ----------------------- Untyped Tests ----------------------- //

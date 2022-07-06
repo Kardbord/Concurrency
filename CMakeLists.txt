@@ -38,7 +38,6 @@ ENDIF()
 FetchContent_MakeAvailable(googletest)
 set("TEST_SRC"
   tests/UnorderedConcurrentMapTests.cpp
-  tests/ShardedUnorderedConcurrentMapTests.cpp
 )
 enable_testing()
 add_executable(${CMAKE_PROJECT_NAME}_test ${TEST_SRC})
