@@ -294,6 +294,7 @@ namespace {
                               clear,                             //
                               insert,                            //
                               insert_or_assign                   //
+                              // TODO: resume testing with "emplace"
   );
 
   using Types = ::testing::Types<                     // Comments so clang-format keeps
