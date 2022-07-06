@@ -9,7 +9,6 @@ namespace {
   using ::Concurrent::UnorderedMap;
 
   // Custom struct for use as a map value.
-  // TODO: test using this as a map key.
   struct Foo {
     Foo() = default;
     Foo(int a, std::string b) : m_a(a), m_b(b) {}
@@ -21,6 +20,9 @@ namespace {
   // bool operator!=(const Foo &lhs, const Foo &rhs) { return !(lhs == rhs); }
   // bool operator==(const Foo &lhs, const Foo &&rhs) { return lhs.m_a == rhs.m_a && lhs.m_b == rhs.m_b; }
   // bool operator!=(const Foo &lhs, const Foo &&rhs) { return !(lhs == rhs); }
+  struct FooHash {
+    size_t operator()(const Foo &foo) const { return std::hash<int>()(foo.m_a) ^ std::hash<std::string>()(foo.m_b); }
+  };
 
   // helper constant for static_asserts in constexpr flow control.
   template <typename...>
@@ -64,6 +66,11 @@ namespace {
       return map_type{
           {1, Foo(1, "a")},
           {2, Foo(2, "b")},
+      };
+    } else if constexpr (std::is_same_v<key_type, Foo> && std::is_integral_v<mapped_type>) {
+      return map_type{
+          {Foo(1, "a"), 1},
+          {Foo(2, "b"), 2},
       };
     } else {
       static_assert(always_false_v<key_type, mapped_type>, "Unhandled <key_type, mapped_type> combination.");
@@ -256,23 +263,25 @@ namespace {
                               insert                             //
   );
 
-  using Types = ::testing::Types<                    // Comments so clang-format keeps
-      UnorderedMap<std::string, uint32_t>,           // these lines broken.
-      UnorderedMap<std::string, std::string>,        //
-      UnorderedMap<std::string, float>,              //
-      UnorderedMap<int32_t, uint64_t>,               //
-      UnorderedMap<int64_t, size_t>,                 //
-      UnorderedMap<int32_t, std::string>,            //
-      UnorderedMap<int64_t, std::string>,            //
-      UnorderedMap<int16_t, Foo>,                    //
-      ShardedUnorderedMap<std::string, uint32_t>,    //
-      ShardedUnorderedMap<std::string, std::string>, //
-      ShardedUnorderedMap<std::string, float>,       //
-      ShardedUnorderedMap<int32_t, uint64_t>,        //
-      ShardedUnorderedMap<int64_t, size_t>,          //
-      ShardedUnorderedMap<int32_t, std::string>,     //
-      ShardedUnorderedMap<int64_t, std::string>,     //
-      ShardedUnorderedMap<int16_t, Foo>>;            //
+  using Types = ::testing::Types<                     // Comments so clang-format keeps
+      UnorderedMap<std::string, uint32_t>,            // these lines broken.
+      UnorderedMap<std::string, std::string>,         //
+      UnorderedMap<std::string, float>,               //
+      UnorderedMap<int32_t, uint64_t>,                //
+      UnorderedMap<int64_t, size_t>,                  //
+      UnorderedMap<int32_t, std::string>,             //
+      UnorderedMap<int64_t, std::string>,             //
+      UnorderedMap<Foo, int16_t, FooHash>,            //
+      UnorderedMap<int16_t, Foo>,                     //
+      ShardedUnorderedMap<std::string, uint32_t>,     //
+      ShardedUnorderedMap<std::string, std::string>,  //
+      ShardedUnorderedMap<std::string, float>,        //
+      ShardedUnorderedMap<int32_t, uint64_t>,         //
+      ShardedUnorderedMap<int64_t, size_t>,           //
+      ShardedUnorderedMap<int32_t, std::string>,      //
+      ShardedUnorderedMap<int64_t, std::string>,      //
+      ShardedUnorderedMap<Foo, int16_t, 32, FooHash>, //
+      ShardedUnorderedMap<int16_t, Foo>>;             //
 
   INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, CommonConcurrentUnorderedMapTests, Types);
 
