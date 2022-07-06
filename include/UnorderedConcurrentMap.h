@@ -125,7 +125,7 @@ namespace Concurrent {
     }
     bool insert(node_type &&nh) {
       auto lock = lock_for_writing();
-      return m_map.insert(nh).inserted;
+      return m_map.insert(std::move(nh)).inserted;
     }
 
     template <class M>

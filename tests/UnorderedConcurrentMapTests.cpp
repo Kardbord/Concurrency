@@ -163,8 +163,80 @@ namespace {
     ASSERT_LT(0, m.size());
   }
 
-  REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, DefaultConstructor, CopyConstructor, MoveConstructor, CopyAssignment, MoveAssignment, get_allocator, empty, size);
-  using Types = ::testing::Types<                    // comments so clang-format keeps
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, clear) {
+    using map_type = TypeParam;
+
+    map_type m = initialize_test_map<map_type>();
+    ASSERT_FALSE(m.empty());
+    m.clear();
+    ASSERT_TRUE(m.empty());
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, insert) {
+    using map_type    = TypeParam;
+    using value_type  = typename map_type::value_type;
+    using key_type    = typename map_type::key_type;
+    using mapped_type = typename map_type::mapped_type;
+    using node_type   = typename map_type::node_type;
+
+    // insert(const value_type &value)
+    {
+      map_type m;
+      value_type v;
+      ASSERT_TRUE(m.empty());
+      ASSERT_TRUE(m.insert(v));
+      ASSERT_FALSE(m.empty());
+      ASSERT_FALSE(m.insert(v));
+      ASSERT_EQ(v.second, m.at(v.first));
+    }
+    // insert(value_type &&value)
+    {
+      map_type m;
+      ASSERT_TRUE(m.empty());
+      ASSERT_TRUE(m.insert(value_type()));
+      ASSERT_FALSE(m.insert(value_type()));
+      ASSERT_EQ(value_type().second, m.at(value_type().first));
+    }
+    // insert(std::initializer_list<value_type> ilist)
+    {
+      map_type m;
+      ASSERT_TRUE(m.empty());
+      m.insert({
+          {key_type(), mapped_type()},
+      });
+      ASSERT_FALSE(m.empty());
+      ASSERT_EQ(mapped_type(), m.at(key_type()));
+    }
+    // insert(node_type &&nh)
+    {
+      map_type m;
+      value_type v;
+      ASSERT_TRUE(m.empty());
+      ASSERT_TRUE(m.insert(v));
+      ASSERT_FALSE(m.empty());
+      node_type node = m.extract(v.first);
+      ASSERT_FALSE(node.empty());
+      ASSERT_TRUE(m.empty());
+      ASSERT_EQ(node.mapped(), v.second);
+      ASSERT_TRUE(m.insert(std::move(node)));
+      ASSERT_FALSE(m.empty());
+      ASSERT_EQ(v.second, m.at(v.first));
+    }
+  }
+
+  REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
+                              DefaultConstructor,                // these lines broken.
+                              CopyConstructor,                   //
+                              MoveConstructor,                   //
+                              CopyAssignment,                    //
+                              MoveAssignment,                    //
+                              get_allocator,                     //
+                              empty,                             //
+                              size,                              //
+                              clear,                             //
+                              insert                             //
+  );
+  using Types = ::testing::Types<                    // Comments so clang-format keeps
       UnorderedMap<std::string, uint32_t>,           // these lines broken.
       UnorderedMap<std::string, std::string>,        //
       UnorderedMap<std::string, float>,              //

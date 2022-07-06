@@ -120,7 +120,7 @@ namespace Concurrent {
         (void) insert(el);
       }
     }
-    bool insert(node_type &&nh) { return insert(nh.value()); }
+    bool insert(node_type &&nh) { return get_mutable_shard(nh.key()).insert(std::move(nh)); }
 
     template <class M>
     bool insert_or_assign(const Key &k, M &&obj) {
