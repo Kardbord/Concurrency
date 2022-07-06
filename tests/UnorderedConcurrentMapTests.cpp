@@ -116,7 +116,15 @@ namespace {
     ASSERT_EQ(umap1, umap2);
   }
 
-  REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, DefaultConstructor, CopyConstructor, MoveConstructor);
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, get_allocator) {
+    using map_type = TypeParam;
+
+    auto umap     = initialize_test_map<map_type>();
+    auto max_size = umap.get_allocator().max_size();
+    ASSERT_NE(0, max_size);
+  }
+
+  REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, DefaultConstructor, CopyConstructor, MoveConstructor, get_allocator);
   using Types = ::testing::Types<                    // comments so clang-format keeps
       UnorderedMap<std::string, uint32_t>,           // these lines broken.
       UnorderedMap<std::string, std::string>,        //
