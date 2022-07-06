@@ -45,8 +45,8 @@ TYPED_TEST_P(UnorderedConcurrentMapTest, DefaultConstructor) {
   ASSERT_EQ(expected_size, data.size());
   ASSERT_TRUE(data.empty());
 
-  EXPECT_EQ(map_type().data(), data);
-  EXPECT_FALSE(data != map_type().data());
+  EXPECT_EQ(map_type(), umap);
+  EXPECT_FALSE(umap != map_type());
 }
 
 REGISTER_TYPED_TEST_SUITE_P(UnorderedConcurrentMapTest, DefaultConstructor);

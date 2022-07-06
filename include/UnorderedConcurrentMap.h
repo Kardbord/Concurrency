@@ -290,32 +290,32 @@ namespace Concurrent {
     internal_map_type m_map{};
   };
 
+  template <class Key, class T, class Hash, class KeyEqual, class Alloc>
+  bool operator==(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &rhs) {
+    return lhs.data() == rhs.data();
+  }
+
+  template <class Key, class T, class Hash, class KeyEqual, class Alloc>
+  bool operator!=(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &rhs) {
+    return !(lhs == rhs);
+  }
+
+  template <class Key, class T, class Hash, class KeyEqual, class Alloc>
+  bool operator==(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &&rhs) {
+    return lhs.data() == rhs.data();
+  }
+
+  template <class Key, class T, class Hash, class KeyEqual, class Alloc>
+  bool operator!=(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &&rhs) {
+    return !(lhs == rhs);
+  }
+
+  // Specializes the std::swap algorithm for ::Concurrent::UnorderedMap. Swaps the contents of lhs and rhs. Calls lhs.swap(rhs).
+  template <class Key, class T, class Hash, class KeyEqual, class Alloc>
+  void swap(::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &rhs) noexcept {
+    lhs.swap(rhs);
+  }
+
 } // namespace Concurrent
-
-template <class Key, class T, class Hash, class KeyEqual, class Alloc>
-bool operator==(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &rhs) {
-  return lhs.data() == rhs.data();
-}
-
-template <class Key, class T, class Hash, class KeyEqual, class Alloc>
-bool operator!=(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &rhs) {
-  return !(lhs == rhs);
-}
-
-template <class Key, class T, class Hash, class KeyEqual, class Alloc>
-bool operator==(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &&rhs) {
-  return lhs.data() == rhs.data();
-}
-
-template <class Key, class T, class Hash, class KeyEqual, class Alloc>
-bool operator!=(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &&rhs) {
-  return !(lhs == rhs);
-}
-
-// Specializes the std::swap algorithm for ::Concurrent::UnorderedMap. Swaps the contents of lhs and rhs. Calls lhs.swap(rhs).
-template <class Key, class T, class Hash, class KeyEqual, class Alloc>
-void swap(::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &rhs) noexcept {
-  lhs.swap(rhs);
-}
 
 #endif // UNORDERED_CONCURRENT_MAP_H

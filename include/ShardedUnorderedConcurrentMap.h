@@ -257,32 +257,31 @@ namespace Concurrent {
     const shard_type &get_shard(Key const &&key) const { return m_shards.at(get_shard_idx(key)); }
   };
 
+  template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+  bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
+    return lhs.data() == rhs.data();
+  }
+
+  template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+  bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
+    return !(lhs == rhs);
+  }
+
+  template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+  bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
+    return lhs.data() == rhs.data();
+  }
+
+  template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+  bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
+    return !(lhs == rhs);
+  }
+
+  // Specializes the std::swap algorithm for ::Concurrent::ShardedUnorderedMap. Swaps the contents of lhs and rhs. Calls lhs.swap(rhs).
+  template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+  void swap(::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) noexcept {
+    lhs.swap(rhs);
+  }
+
 } // namespace Concurrent
-
-template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
-  return lhs.data() == rhs.data();
-}
-
-template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
-  return !(lhs == rhs);
-}
-
-template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
-  return lhs.data() == rhs.data();
-}
-
-template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
-  return !(lhs == rhs);
-}
-
-// Specializes the std::swap algorithm for ::Concurrent::ShardedUnorderedMap. Swaps the contents of lhs and rhs. Calls lhs.swap(rhs).
-template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-void swap(::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) noexcept {
-  lhs.swap(rhs);
-}
-
 #endif // SHARDED_UNORDERED_CONCURRENT_MAP
