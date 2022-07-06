@@ -8,6 +8,20 @@ namespace {
   using ::Concurrent::ShardedUnorderedMap;
   using ::Concurrent::UnorderedMap;
 
+  // Custom struct for use as a map value.
+  // TODO: test using this as a map key.
+  struct Foo {
+    Foo() = default;
+    Foo(int a, std::string b) : m_a(a), m_b(b) {}
+
+    int m_a{};
+    std::string m_b{};
+  };
+  bool operator==(const Foo &lhs, const Foo &rhs) { return lhs.m_a == rhs.m_a && lhs.m_b == rhs.m_b; }
+  // bool operator!=(const Foo &lhs, const Foo &rhs) { return !(lhs == rhs); }
+  // bool operator==(const Foo &lhs, const Foo &&rhs) { return lhs.m_a == rhs.m_a && lhs.m_b == rhs.m_b; }
+  // bool operator!=(const Foo &lhs, const Foo &&rhs) { return !(lhs == rhs); }
+
   // helper constant for static_asserts in constexpr flow control.
   template <typename...>
   static inline constexpr bool always_false_v = false;
@@ -45,6 +59,11 @@ namespace {
           {1, "foo"},
           {2, "bar"},
           {3, "baz"},
+      };
+    } else if constexpr (std::is_integral_v<key_type> && std::is_same_v<mapped_type, Foo>) {
+      return map_type{
+          {1, Foo(1, "a")},
+          {2, Foo(2, "b")},
       };
     } else {
       static_assert(always_false_v<key_type, mapped_type>, "Unhandled <key_type, mapped_type> combination.");
@@ -236,6 +255,7 @@ namespace {
                               clear,                             //
                               insert                             //
   );
+
   using Types = ::testing::Types<                    // Comments so clang-format keeps
       UnorderedMap<std::string, uint32_t>,           // these lines broken.
       UnorderedMap<std::string, std::string>,        //
@@ -244,13 +264,16 @@ namespace {
       UnorderedMap<int64_t, size_t>,                 //
       UnorderedMap<int32_t, std::string>,            //
       UnorderedMap<int64_t, std::string>,            //
+      UnorderedMap<int16_t, Foo>,                    //
       ShardedUnorderedMap<std::string, uint32_t>,    //
       ShardedUnorderedMap<std::string, std::string>, //
       ShardedUnorderedMap<std::string, float>,       //
       ShardedUnorderedMap<int32_t, uint64_t>,        //
       ShardedUnorderedMap<int64_t, size_t>,          //
       ShardedUnorderedMap<int32_t, std::string>,     //
-      ShardedUnorderedMap<int64_t, std::string>>;    //
+      ShardedUnorderedMap<int64_t, std::string>,     //
+      ShardedUnorderedMap<int16_t, Foo>>;            //
+
   INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, CommonConcurrentUnorderedMapTests, Types);
 
   TEST_F(UnshardedConcurrentUnorderedMapTests, IListConstructor) {
@@ -311,4 +334,5 @@ namespace {
     UnorderedMap<std::string, std::string> umap;
     ASSERT_LT(0, umap.max_size());
   }
+
 } // anonymous namespace
