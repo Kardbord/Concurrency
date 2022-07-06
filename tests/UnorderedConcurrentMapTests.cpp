@@ -235,4 +235,8 @@ namespace {
     ASSERT_EQ("quuux", umap.at("baz"));
   }
 
+  TEST_F(UnshardedConcurrentUnorderedMapTests, max_size) {
+    UnorderedMap<std::string, std::string> umap;
+    ASSERT_LT(0, umap.max_size());
+  }
 } // anonymous namespace
