@@ -53,13 +53,22 @@ namespace Concurrent {
     UnorderedMap() = default;
     UnorderedMap(const UnorderedMap &other) : m_map(other.data()) {}
     UnorderedMap(const UnorderedMap &other, const Allocator &alloc) : m_map(other.data(), alloc) {}
-    UnorderedMap(UnorderedMap &&other) : m_map(other.m_map) {}
-    UnorderedMap(UnorderedMap &&other, const Allocator &alloc) : m_map(other.m_map, alloc) {}
-    UnorderedMap(std::initializer_list<value_type> init) : m_map(init.begin(), init.end()) {}
+    UnorderedMap(UnorderedMap &&other) : m_map(std::move(other.m_map)) {}
+    UnorderedMap(UnorderedMap &&other, const Allocator &alloc) : m_map(std::move(other.m_map), std::move(alloc)) {}
+    UnorderedMap(std::initializer_list<value_type> ilist) : m_map(ilist) {}
 
-    UnorderedMap &operator=(const UnorderedMap &other) { return UnorderedMap(other); }
-    UnorderedMap &operator=(UnorderedMap &&other) noexcept { return UnorderedMap(other); }
-    UnorderedMap &operator=(std::initializer_list<value_type> ilist) { return UnorderedMap(ilist); }
+    UnorderedMap &operator=(const UnorderedMap &other) {
+      this->m_map = other.m_map;
+      return *this;
+    }
+    UnorderedMap &operator=(UnorderedMap &&other) noexcept {
+      this->m_map = std::move(other.m_map);
+      return *this;
+    }
+    UnorderedMap &operator=(std::initializer_list<value_type> ilist) {
+      this->insert(ilist);
+      return *this;
+    }
 
     ~UnorderedMap() = default;
 

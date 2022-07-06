@@ -49,15 +49,27 @@ namespace Concurrent {
     // ------------------------------ Constructors ------------------------------ //
     ShardedUnorderedMap() { validate_shard_count(); }
     ShardedUnorderedMap(const ShardedUnorderedMap &other) : m_shards(other.m_shards) { validate_shard_count(); }
-    ShardedUnorderedMap(ShardedUnorderedMap &&other) : m_shards(other.m_shards) { validate_shard_count(); }
+    ShardedUnorderedMap(ShardedUnorderedMap &&other) : m_shards(std::move(other.m_shards)) { validate_shard_count(); }
     ShardedUnorderedMap(std::initializer_list<value_type> ilist) {
       validate_shard_count();
       insert(ilist);
     }
 
-    ShardedUnorderedMap &operator=(const ShardedUnorderedMap &other) { return ShardedUnorderedMap(other); }
-    ShardedUnorderedMap &operator=(ShardedUnorderedMap &&other) noexcept { return ShardedUnorderedMap(other); }
-    ShardedUnorderedMap &operator=(std::initializer_list<value_type> ilist) { return ShardedUnorderedMap(ilist); }
+    ShardedUnorderedMap &operator=(const ShardedUnorderedMap &other) {
+      validate_shard_count();
+      this->m_shards = other.m_shards;
+      return *this;
+    }
+    ShardedUnorderedMap &operator=(ShardedUnorderedMap &&other) noexcept {
+      validate_shard_count();
+      this->m_shards = std::move(other.m_shards);
+      return *this;
+    }
+    ShardedUnorderedMap &operator=(std::initializer_list<value_type> ilist) {
+      validate_shard_count();
+      this->insert(ilist);
+      return *this;
+    }
 
     ~ShardedUnorderedMap() = default;
 

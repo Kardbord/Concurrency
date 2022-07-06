@@ -103,7 +103,7 @@ namespace {
     ASSERT_FALSE(umap1.empty());
     auto umap2{umap1};
     ASSERT_EQ(umap1, umap2);
-    auto umap3 = umap2;
+    auto umap3(umap2);
     ASSERT_EQ(umap1, umap3);
   }
 
@@ -114,6 +114,27 @@ namespace {
     ASSERT_FALSE(umap1.empty());
     auto umap2{initialize_test_map<map_type>()};
     ASSERT_EQ(umap1, umap2);
+    auto umap3(initialize_test_map<map_type>());
+    ASSERT_EQ(umap1, umap3);
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, CopyAssignment) {
+    using map_type = TypeParam;
+
+    auto umap1 = initialize_test_map<map_type>();
+    ASSERT_FALSE(umap1.empty());
+    auto umap2 = umap1;
+    ASSERT_EQ(umap1, umap2);
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, MoveAssignment) {
+    using map_type = TypeParam;
+
+    auto umap = initialize_test_map<map_type>();
+    ASSERT_FALSE(umap.empty());
+    auto old_data = umap.data();
+    umap          = initialize_test_map<map_type>();
+    ASSERT_EQ(old_data, umap.data());
   }
 
   TYPED_TEST_P(CommonConcurrentUnorderedMapTests, get_allocator) {
@@ -124,7 +145,25 @@ namespace {
     ASSERT_NE(0, max_size);
   }
 
-  REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, DefaultConstructor, CopyConstructor, MoveConstructor, get_allocator);
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, empty) {
+    using map_type = TypeParam;
+
+    map_type m;
+    ASSERT_TRUE(m.empty());
+    m = initialize_test_map<map_type>();
+    ASSERT_FALSE(m.empty());
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, size) {
+    using map_type = TypeParam;
+
+    map_type m;
+    ASSERT_EQ(0, m.size());
+    m = initialize_test_map<map_type>();
+    ASSERT_LT(0, m.size());
+  }
+
+  REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, DefaultConstructor, CopyConstructor, MoveConstructor, CopyAssignment, MoveAssignment, get_allocator, empty, size);
   using Types = ::testing::Types<                    // comments so clang-format keeps
       UnorderedMap<std::string, uint32_t>,           // these lines broken.
       UnorderedMap<std::string, std::string>,        //
@@ -157,6 +196,33 @@ namespace {
   }
   TEST_F(ShardedConcurrentUnorderedMapTests, IListConstructor) {
     ShardedUnorderedMap<std::string, std::string> umap{
+        {"foo", "qux"},
+        {"bar", "quux"},
+        {"baz", "quuux"},
+    };
+
+    ASSERT_FALSE(umap.empty());
+    ASSERT_EQ(3, umap.size());
+    ASSERT_EQ("qux", umap.at("foo"));
+    ASSERT_EQ("quux", umap.at("bar"));
+    ASSERT_EQ("quuux", umap.at("baz"));
+  }
+
+  TEST_F(UnshardedConcurrentUnorderedMapTests, IListAssignment) {
+    UnorderedMap<std::string, std::string> umap = {
+        {"foo", "qux"},
+        {"bar", "quux"},
+        {"baz", "quuux"},
+    };
+
+    ASSERT_FALSE(umap.empty());
+    ASSERT_EQ(3, umap.size());
+    ASSERT_EQ("qux", umap.at("foo"));
+    ASSERT_EQ("quux", umap.at("bar"));
+    ASSERT_EQ("quuux", umap.at("baz"));
+  }
+  TEST_F(ShardedConcurrentUnorderedMapTests, IListAssignment) {
+    ShardedUnorderedMap<std::string, std::string> umap = {
         {"foo", "qux"},
         {"bar", "quux"},
         {"baz", "quuux"},
