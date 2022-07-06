@@ -286,21 +286,29 @@ namespace Concurrent {
     write_lock lock_for_writing() { return write_lock(m_mutex); }
 
   private:
-    mutex_type m_mutex{};
+    mutable mutex_type m_mutex{};
     internal_map_type m_map{};
   };
 
 } // namespace Concurrent
 
 template <class Key, class T, class Hash, class KeyEqual, class Alloc>
-bool operator==(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const std::unordered_map<Key, T, Hash, KeyEqual, Alloc> &rhs) {
-  auto lhs_lock = lhs.lock_for_reading();
-  auto rhs_lock = rhs.lock_for_reading();
+bool operator==(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &rhs) {
   return lhs.data() == rhs.data();
 }
 
 template <class Key, class T, class Hash, class KeyEqual, class Alloc>
-bool operator!=(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const std::unordered_map<Key, T, Hash, KeyEqual, Alloc> &rhs) {
+bool operator!=(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &rhs) {
+  return !(lhs == rhs);
+}
+
+template <class Key, class T, class Hash, class KeyEqual, class Alloc>
+bool operator==(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &&rhs) {
+  return lhs.data() == rhs.data();
+}
+
+template <class Key, class T, class Hash, class KeyEqual, class Alloc>
+bool operator!=(const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::UnorderedMap<Key, T, Hash, KeyEqual, Alloc> &&rhs) {
   return !(lhs == rhs);
 }
 

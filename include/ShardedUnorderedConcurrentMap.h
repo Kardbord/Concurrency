@@ -258,12 +258,22 @@ namespace Concurrent {
 } // namespace Concurrent
 
 template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const std::unordered_map<Key, T, Hash, KeyEqual, Alloc> &rhs) {
+bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
   return lhs.data() == rhs.data();
 }
 
 template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const std::unordered_map<Key, T, Hash, KeyEqual, Alloc> &rhs) {
+bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
+  return !(lhs == rhs);
+}
+
+template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
+  return lhs.data() == rhs.data();
+}
+
+template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
+bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
   return !(lhs == rhs);
 }
 
