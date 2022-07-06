@@ -72,12 +72,12 @@ namespace Concurrent {
     */
 
     // -------------------------------- Capacity -------------------------------- //
-    bool empty() noexcept {
+    bool empty() const noexcept {
       auto l = lock_for_reading();
       return m_map.empty();
     }
 
-    size_type size() noexcept {
+    size_type size() const noexcept {
       auto l = lock_for_reading();
       return m_map.size();
     }
@@ -190,72 +190,72 @@ namespace Concurrent {
     // ------------------------------ Accessors --------------------------------- //
     // Returns a copy of the element mapped to
     // the provided key. Does bounds checking.
-    Val at(const Key &key) {
+    Val at(const Key &key) const {
       auto lock = lock_for_reading();
       return m_map.at(key);
     }
     // Returns a copy of the element mapped to
     // the provided key. Does bounds checking.
-    Val at(const Key &&key) {
+    Val at(const Key &&key) const {
       auto lock = lock_for_reading();
       return m_map.at(key);
     }
 
     // Returns a copy of the element mapped to
     // the provided key. Does bounds checking.
-    Val operator[](const Key &key) { return at(key); }
+    Val operator[](const Key &key) const { return at(key); }
     // Returns a copy of the element mapped to
     // the provided key. Does bounds checking.
-    Val operator[](Key &&key) { return at(key); }
+    Val operator[](Key &&key) const { return at(key); }
 
-    size_type count(const Key &key) {
+    size_type count(const Key &key) const {
       auto lock = lock_for_reading();
       return m_map.count(key);
     }
 
     // Returns a bool indicating whether or not the
     // provided key is present in the map.
-    bool find(const Key &key) {
+    bool find(const Key &key) const {
       auto lock = lock_for_reading();
       return m_map.find(key) != m_map.end();
     }
 
     // Returns a non-thread-safe copy of the underlying map.
-    internal_map_type data() {
+    internal_map_type data() const {
       auto lock = lock_for_reading();
       return m_map;
     }
 
     // --------------------------- Bucket Interface ----------------------------- //
-    size_type bucket_count() {
+    size_type bucket_count() const {
       auto lock = lock_for_reading();
       return m_map.bucket_count();
     }
 
     size_type max_bucket_count() const { return m_map.max_bucket_count(); }
 
-    size_type bucket_size(size_type n) {
+    size_type bucket_size(size_type n) const {
       auto lock = lock_for_reading();
       return m_map.bucket_size(n);
     }
 
-    size_type bucket(const Key &key) {
+    size_type bucket(const Key &key) const {
       auto lock = lock_for_reading();
       return m_map.bucket(key);
     }
 
     // ------------------------------ Hash Policy ------------------------------- //
-    float load_factor() {
+    float load_factor() const {
       auto lock = lock_for_reading();
       return m_map.load_factor();
     }
 
-    float max_load_factor() {
+    float max_load_factor() const {
       auto lock = lock_for_reading();
       return m_map.max_load_factor();
     }
 
-    void max_load_factor(float ml) {
+    void max_load_factor(float ml) const {
       auto lock = lock_for_writing();
       m_map.max_load_factor(ml);
     }
@@ -279,11 +279,11 @@ namespace Concurrent {
 
     // Returns a locked read_lock that prevents concurrent write access to
     // the underlying map.
-    read_lock lock_for_reading() { return read_lock(m_mutex); }
+    read_lock lock_for_reading() const { return read_lock(m_mutex); }
 
     // Returns a locked write_lock that prevents concurrent access to the
     // underlying map.
-    write_lock lock_for_writing() { return write_lock(m_mutex); }
+    write_lock lock_for_writing() const { return write_lock(m_mutex); }
 
   private:
     mutable mutex_type m_mutex{};

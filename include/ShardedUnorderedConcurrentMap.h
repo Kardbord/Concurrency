@@ -64,14 +64,14 @@ namespace Concurrent {
     allocator_type get_allocator() const { return m_shards.at(0).get_allocator(); }
 
     // -------------------------------- Capacity -------------------------------- //
-    bool empty() noexcept {
+    bool empty() const noexcept {
       for (auto &s: m_shards) {
         if (!s.empty()) return false;
       }
       return true;
     }
 
-    size_type size() noexcept {
+    size_type size() const noexcept {
       size_type size = 0;
       for (auto &s: m_shards) {
         size += s.size();
@@ -87,8 +87,8 @@ namespace Concurrent {
       }
     }
 
-    bool insert(const value_type &value) { return get_shard(value.first).insert(value); }
-    bool insert(value_type &&value) { return get_shard(value.first).insert(value); }
+    bool insert(const value_type &value) { return get_mutable_shard(value.first).insert(value); }
+    bool insert(value_type &&value) { return get_mutable_shard(value.first).insert(value); }
     void insert(std::initializer_list<value_type> ilist) {
       for (auto const &el: ilist) {
         (void) insert(el);
@@ -98,14 +98,14 @@ namespace Concurrent {
 
     template <class M>
     bool insert_or_assign(const Key &k, M &&obj) {
-      return get_shard(k).insert_or_assign(k, obj);
+      return get_mutable_shard(k).insert_or_assign(k, obj);
     }
     template <class M>
     bool insert_or_assign(Key &&k, M &&obj) {
-      return get_shard(k).insert_or_assign(k, obj);
+      return get_mutable_shard(k).insert_or_assign(k, obj);
     }
 
-    size_type erase(const Key &key) { return get_shard(key).erase(key); }
+    size_type erase(const Key &key) { return get_mutable_shard(key).erase(key); }
 
     void swap(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &other) noexcept {
       for (auto i = 0; i < ShardCount; ++i) {
@@ -125,7 +125,7 @@ namespace Concurrent {
       }
     }
 
-    node_type extract(const Key &k) { return get_shard(k).extract(k); }
+    node_type extract(const Key &k) { return get_mutable_shard(k).extract(k); }
 
     void merge(internal_map_type &source) {
       for (auto const &el: source) {
@@ -161,27 +161,27 @@ namespace Concurrent {
     // ------------------------------ Accessors --------------------------------- //
     // Returns a copy of the element mapped to
     // the provided key. Does bounds checking.
-    Val at(const Key &key) { return get_shard(key).at(key); }
+    Val at(const Key &key) const { return get_shard(key).at(key); }
     // Returns a copy of the element mapped to
     // the provided key. Does bounds checking.
-    Val at(const Key &&key) { return get_shard(key).at(key); }
+    Val at(const Key &&key) const { return get_shard(key).at(key); }
 
     // Returns a copy of the element mapped to
     // the provided key. Does bounds checking.
-    Val operator[](const Key &key) { return at(key); }
+    Val operator[](const Key &key) const { return at(key); }
     // Returns a copy of the element mapped to
     // the provided key. Does bounds checking.
-    Val operator[](Key &&key) { return at(key); }
+    Val operator[](Key &&key) const { return at(key); }
 
-    size_type count(const Key &key) { return get_shard(key).count(key); }
+    size_type count(const Key &key) const { return get_shard(key).count(key); }
 
     // Returns a bool indicating whether or not the
     // provided key is present in the map.
-    bool find(const Key &key) { return get_shard(key).find(key); }
+    bool find(const Key &key) const { return get_shard(key).find(key); }
 
     // Returns a copy of the data in each
     // shard as a single non-thread-safe unordered_map.
-    internal_map_type data() {
+    internal_map_type data() const {
       internal_map_type m;
       for (auto &s: m_shards) {
         m.merge(s.data());
@@ -193,7 +193,7 @@ namespace Concurrent {
     uint32_t shard_count() const noexcept { return ShardCount; }
 
     // Averaged load factor across all shards.
-    float load_factor() {
+    float load_factor() const {
       float lf = 0;
       for (auto &s: m_shards) {
         lf += s.load_factor();
@@ -204,7 +204,7 @@ namespace Concurrent {
     // Returns the load factor for a given shard.
     // If shard_idx is greater than the number of shards,
     // -1.0 is returned.
-    float shard_load_factor(uint32_t const shard_idx) {
+    float shard_load_factor(uint32_t const shard_idx) const {
       if (shard_idx >= ShardCount) {
         return -1.0;
       }
@@ -213,7 +213,7 @@ namespace Concurrent {
 
     // Returns the current maximum load factor
     // allowed for all shards.
-    float max_load_factor() { return m_shards.at(0).load_factor(); }
+    float max_load_factor() const { return m_shards.at(0).load_factor(); }
 
     // Sets the maximum load factor allowed
     // for all shards.
@@ -247,12 +247,14 @@ namespace Concurrent {
   private:
     std::array<shard_type, ShardCount> m_shards{};
 
-    void validate_shard_count() { static_assert(ShardCount != 0, "ShardCount template parameter must be non-zero."); }
+    void validate_shard_count() const { static_assert(ShardCount != 0, "ShardCount template parameter must be non-zero."); }
 
-    uint32_t get_shard_idx(Key const &key) { return hash_function()(key) % ShardCount; }
-    uint32_t get_shard_idx(Key const &&key) { return hash_function()(key) % ShardCount; }
-    shard_type &get_shard(Key const &key) { return m_shards.at(get_shard_idx(key)); }
-    shard_type &get_shard(Key const &&key) { return m_shards.at(get_shard_idx(key)); }
+    uint32_t get_shard_idx(Key const &key) const { return hash_function()(key) % ShardCount; }
+    uint32_t get_shard_idx(Key const &&key) const { return hash_function()(key) % ShardCount; }
+    shard_type &get_mutable_shard(Key const &key) { return m_shards.at(get_shard_idx(key)); }
+    shard_type &get_mutable_shard(Key const &&key) { return m_shards.at(get_shard_idx(key)); }
+    const shard_type &get_shard(Key const &key) const { return m_shards.at(get_shard_idx(key)); }
+    const shard_type &get_shard(Key const &&key) const { return m_shards.at(get_shard_idx(key)); }
   };
 
 } // namespace Concurrent
