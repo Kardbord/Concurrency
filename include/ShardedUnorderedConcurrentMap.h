@@ -48,8 +48,18 @@ namespace Concurrent {
 
     // ------------------------------ Constructors ------------------------------ //
     ShardedUnorderedMap() { validate_shard_count(); }
-    ShardedUnorderedMap(const ShardedUnorderedMap &other) : m_shards(other.m_shards) { validate_shard_count(); }
-    ShardedUnorderedMap(ShardedUnorderedMap &&other) : m_shards(std::move(other.m_shards)) { validate_shard_count(); }
+    ShardedUnorderedMap(const ShardedUnorderedMap &other) {
+      validate_shard_count();
+      for (uint32_t i = 0; i < ShardCount; ++i) {
+        m_shards[i] = other.m_shards[i];
+      }
+    }
+    ShardedUnorderedMap(ShardedUnorderedMap &&other) {
+      validate_shard_count();
+      for (uint32_t i = 0; i < ShardCount; ++i) {
+        m_shards[i] = other.m_shards[i];
+      }
+    }
     ShardedUnorderedMap(std::initializer_list<value_type> ilist) {
       validate_shard_count();
       insert(ilist);
@@ -57,12 +67,16 @@ namespace Concurrent {
 
     ShardedUnorderedMap &operator=(const ShardedUnorderedMap &other) {
       validate_shard_count();
-      this->m_shards = other.m_shards;
+      for (uint32_t i = 0; i < ShardCount; ++i) {
+        m_shards[i] = other.m_shards[i];
+      }
       return *this;
     }
     ShardedUnorderedMap &operator=(ShardedUnorderedMap &&other) noexcept {
       validate_shard_count();
-      this->m_shards = std::move(other.m_shards);
+      for (uint32_t i = 0; i < ShardCount; ++i) {
+        m_shards[i] = other.m_shards[i];
+      }
       return *this;
     }
     ShardedUnorderedMap &operator=(std::initializer_list<value_type> ilist) {

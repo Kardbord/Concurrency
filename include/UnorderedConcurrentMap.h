@@ -51,16 +51,24 @@ namespace Concurrent {
 
     // ------------------------------ Constructors ------------------------------ //
     UnorderedMap() = default;
-    UnorderedMap(const UnorderedMap &other) : m_map(other.data()) {}
-    UnorderedMap(UnorderedMap &&other) : m_map(std::move(other.m_map)) {}
-    UnorderedMap(std::initializer_list<value_type> ilist) : m_map(ilist) {}
+    UnorderedMap(const UnorderedMap &other) {
+      auto lock = lock_for_writing();
+      m_map     = std::move(other.data());
+    }
+    UnorderedMap(UnorderedMap &&other) {
+      auto lock = lock_for_writing();
+      m_map     = std::move(other.data());
+    }
+    UnorderedMap(std::initializer_list<value_type> ilist) { insert(ilist); }
 
     UnorderedMap &operator=(const UnorderedMap &other) {
-      this->m_map = other.m_map;
+      auto lock   = lock_for_writing();
+      this->m_map = other.data();
       return *this;
     }
     UnorderedMap &operator=(UnorderedMap &&other) noexcept {
-      this->m_map = std::move(other.m_map);
+      auto lock   = lock_for_writing();
+      this->m_map = std::move(other.data());
       return *this;
     }
     UnorderedMap &operator=(std::initializer_list<value_type> ilist) {
