@@ -250,6 +250,38 @@ namespace {
     }
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, insert_or_assign) {
+    using map_type    = TypeParam;
+    using key_type    = typename map_type::key_type;
+    using mapped_type = typename map_type::mapped_type;
+
+    // insert_or_assign(const Key &k, M &&obj)
+    {
+      map_type m;
+      key_type k = key_type();
+      mapped_type v = mapped_type();
+
+      ASSERT_TRUE(m.empty());
+      ASSERT_TRUE(m.insert_or_assign(k, v));
+      ASSERT_FALSE(m.empty());
+      ASSERT_FALSE(m.insert_or_assign(k, v));
+      ASSERT_EQ(v, m.at(k));
+    }
+
+    // insert_or_assign(Key &&k, M &&obj)
+    {
+      map_type m;
+      key_type k;
+      mapped_type v;
+
+      ASSERT_TRUE(m.empty());
+      ASSERT_TRUE(m.insert_or_assign(std::move(k), std::move(v)));
+      ASSERT_FALSE(m.empty());
+      ASSERT_FALSE(m.insert_or_assign(std::move(k), std::move(v)));
+      ASSERT_EQ(v, m.at(k));
+    }
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -260,7 +292,8 @@ namespace {
                               empty,                             //
                               size,                              //
                               clear,                             //
-                              insert                             //
+                              insert,                            //
+                              insert_or_assign                   //
   );
 
   using Types = ::testing::Types<                     // Comments so clang-format keeps
