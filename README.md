@@ -1,3 +1,5 @@
+[![Build and Test](https://github.com/TannerKvarfordt/Concurrency/actions/workflows/cmake.yml/badge.svg)](https://github.com/TannerKvarfordt/Concurrency/actions/workflows/cmake.yml)
+
 # Concurrency
 
 This project provides thread-safe wrappers around C++ standard library containers. Most standard library functionality is preserved, though
