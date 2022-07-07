@@ -711,6 +711,28 @@ namespace {
     ASSERT_TRUE(m.key_eq()(key_type(), key_type()));
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, equality) {
+    using map_type = TypeParam;
+
+    map_type m1 = initialize_test_map<map_type>();
+    map_type m2 = initialize_test_map<map_type>();
+    ASSERT_EQ(m1, m2);
+    m1.clear();
+    m2.clear();
+    ASSERT_EQ(m1, m2);
+    ASSERT_EQ(m1, map_type());
+    ASSERT_EQ(m2, map_type());
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, inequality) {
+    using map_type = TypeParam;
+
+    map_type m1 = initialize_test_map<map_type>();
+    map_type m2;
+    ASSERT_NE(m1, m2);
+    ASSERT_NE(m1, map_type());
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -737,7 +759,9 @@ namespace {
                               rehash,                            //
                               reserve,                           //
                               hash_function,                     //
-                              key_eq                             //
+                              key_eq,                            //
+                              equality,                          //
+                              inequality                         //
   );
 
   using Types = ::testing::Types<                                                              // Comments so clang-format keeps
