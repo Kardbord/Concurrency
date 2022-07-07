@@ -693,6 +693,24 @@ namespace {
     m.reserve(100);
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, hash_function) {
+    using map_type = TypeParam;
+    using key_type = typename map_type::key_type;
+
+    map_type m = initialize_test_map<map_type>();
+    auto h     = m.hash_function()(key_type());
+    // Ensure the compiler does not optimize this call away.
+    ASSERT_TRUE(h != 0 || h == 0) << "Something is very wrong here - this should never happen :)";
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, key_eq) {
+    using map_type = TypeParam;
+    using key_type = typename map_type::key_type;
+
+    map_type m = initialize_test_map<map_type>();
+    ASSERT_TRUE(m.key_eq()(key_type(), key_type()));
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -717,7 +735,9 @@ namespace {
                               load_factor,                       //
                               max_load_factor,                   //
                               rehash,                            //
-                              reserve                            //
+                              reserve,                           //
+                              hash_function,                     //
+                              key_eq                             //
   );
 
   using Types = ::testing::Types<                                                              // Comments so clang-format keeps
