@@ -1,3 +1,0 @@
-# tests
-
-Directory for tests.
