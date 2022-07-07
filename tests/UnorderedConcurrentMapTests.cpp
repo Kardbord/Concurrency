@@ -619,6 +619,23 @@ namespace {
     }
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, count) {
+    using map_type   = TypeParam;
+    using value_type = typename map_type::value_type;
+
+    map_type m;
+    const auto key = value_type().first;
+    ASSERT_TRUE(m.empty());
+    ASSERT_EQ(0, m.count(key));
+    (void) m[key];
+    ASSERT_FALSE(m.empty());
+    ASSERT_EQ(1, m.size());
+    ASSERT_EQ(1, m.count(key));
+    (void) m.insert(value_type());
+    ASSERT_EQ(1, m.size());
+    ASSERT_EQ(1, m.count(key));
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -636,7 +653,8 @@ namespace {
                               extract,                           //
                               merge,                             //
                               at,                                //
-                              subscript                          //
+                              subscript,                         //
+                              count                              //
   );
 
   using Types = ::testing::Types<                                                              // Comments so clang-format keeps
