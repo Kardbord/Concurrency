@@ -154,33 +154,55 @@ namespace Concurrent {
     node_type extract(const Key &k) { return get_mutable_shard(k).extract(k); }
 
     void merge(internal_map_type &source) {
-      for (auto const &el: source) {
-        (void) insert(el);
+      auto tmp = source;
+      for (auto const &el: tmp) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
       }
     }
     void merge(internal_map_type &&source) {
-      for (auto const &&el: source) {
-        (void) insert(el);
+      auto tmp = source;
+      for (auto const &el: tmp) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
       }
     }
     void merge(std::unordered_multimap<Key, Val, Hash, Pred, Allocator> &source) {
-      for (auto const &el: source) {
-        (void) insert(el);
+      auto tmp = source;
+      for (auto const &el: tmp) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
       }
     }
     void merge(std::unordered_multimap<Key, Val, Hash, Pred, Allocator> &&source) {
-      for (auto const &&el: source) {
-        (void) insert(el);
+      auto tmp = source;
+      for (auto const &el: tmp) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
+      }
+    }
+    void merge(UnorderedMap<Key, Val, Hash, Pred, Allocator> &source) {
+      for (auto const &el: source.data()) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
+      }
+    }
+    void merge(UnorderedMap<Key, Val, Hash, Pred, Allocator> &&source) {
+      for (auto const &el: source.data()) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
       }
     }
     void merge(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &source) {
-      for (uint32_t i = 0; i < ShardCount; ++i) {
-        this->merge(source.m_shards[i]);
+      for (auto const &el: source.data()) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
       }
     }
     void merge(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &&source) {
-      for (uint32_t i = 0; i < ShardCount; ++i) {
-        this->merge(source.m_shards[i]);
+      for (auto const &el: source.data()) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
       }
     }
 

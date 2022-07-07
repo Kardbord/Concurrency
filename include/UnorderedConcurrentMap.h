@@ -194,12 +194,16 @@ namespace Concurrent {
       m_map.merge(source);
     }
     void merge(UnorderedMap<Key, Val, Hash, Pred, Allocator> &source) {
-      auto lock = lock_for_writing();
-      m_map.merge(source.data());
+      for (auto const &el: source.data()) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
+      }
     }
     void merge(UnorderedMap<Key, Val, Hash, Pred, Allocator> &&source) {
-      auto lock = lock_for_writing();
-      m_map.merge(source.data());
+      for (auto const &el: source.data()) {
+        if (find(el.first)) continue;
+        (void) insert(std::move(source.extract(el.first)));
+      }
     }
 
     // ------------------------------ Accessors --------------------------------- //
@@ -302,6 +306,7 @@ namespace Concurrent {
 
     // ----------------------------- Lock Interface ----------------------------- //
 
+  private:
     // Returns a locked read_lock that prevents concurrent write access to
     // the underlying map.
     read_lock lock_for_reading() const { return read_lock(m_mutex); }
@@ -310,7 +315,6 @@ namespace Concurrent {
     // underlying map.
     write_lock lock_for_writing() const { return write_lock(m_mutex); }
 
-  private:
     mutable mutex_type m_mutex{};
     internal_map_type m_map{};
   };

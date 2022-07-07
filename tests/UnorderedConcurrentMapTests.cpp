@@ -370,6 +370,196 @@ namespace {
     ASSERT_TRUE(m.find(key_type()));
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, merge) {
+    using map_type          = TypeParam;
+    using internal_map_type = typename map_type::internal_map_type;
+    using key_type          = typename map_type::key_type;
+    using mapped_type       = typename map_type::mapped_type;
+    using hasher            = typename map_type::hasher;
+    using key_equal         = typename map_type::key_equal;
+    using allocator_type    = typename map_type::allocator_type;
+    using multimap          = std::unordered_multimap<key_type, mapped_type, hasher, key_equal, allocator_type>;
+
+    // merge(internal_map_type &)
+    {
+      internal_map_type m1 = initialize_test_map<map_type>().data();
+      map_type m2;
+      ASSERT_FALSE(m1.empty());
+      ASSERT_TRUE(m2.empty());
+      m2.merge(m1);
+      ASSERT_TRUE(m1.empty());
+      ASSERT_FALSE(m2.empty());
+      (void) m2.insert({key_type(), mapped_type()});
+      map_type m3 = {{key_type(), mapped_type()}};
+      ASSERT_TRUE(m2.find(key_type()));
+      ASSERT_TRUE(m3.find(key_type()));
+      internal_map_type m2d = m2.data();
+      m3.merge(m2d);
+      ASSERT_EQ(1, m2d.size());
+      ASSERT_NE(m2d.end(), m2d.find(key_type()));
+      ASSERT_TRUE(m3.find(key_type()));
+      for (auto const &el: initialize_test_map<map_type>().data()) {
+        ASSERT_TRUE(m3.find(el.first));
+      }
+    }
+    // merge(internal_map_type &&)
+    {
+      internal_map_type m1 = initialize_test_map<map_type>().data();
+      map_type m2;
+      ASSERT_FALSE(m1.empty());
+      ASSERT_TRUE(m2.empty());
+      m2.merge(std::move(m1));
+      ASSERT_TRUE(m1.empty());
+      ASSERT_FALSE(m2.empty());
+      (void) m2.insert({key_type(), mapped_type()});
+      map_type m3 = {{key_type(), mapped_type()}};
+      ASSERT_TRUE(m2.find(key_type()));
+      ASSERT_TRUE(m3.find(key_type()));
+      internal_map_type m2d = m2.data();
+      m3.merge(std::move(m2d));
+      ASSERT_EQ(1, m2d.size());
+      ASSERT_NE(m2d.end(), m2d.find(key_type()));
+      ASSERT_TRUE(m3.find(key_type()));
+      for (auto const &el: initialize_test_map<map_type>().data()) {
+        ASSERT_TRUE(m3.find(el.first));
+      }
+    }
+
+    // merge(multimap &)
+    {
+      auto init = initialize_test_map<map_type>().data();
+      multimap m1(init.begin(), init.end());
+      map_type m2;
+      ASSERT_FALSE(m1.empty());
+      ASSERT_TRUE(m2.empty());
+      m2.merge(m1);
+      ASSERT_TRUE(m1.empty());
+      ASSERT_FALSE(m2.empty());
+      (void) m2.insert({key_type(), mapped_type()});
+      multimap m3 = {{key_type(), mapped_type()}};
+      ASSERT_TRUE(m2.find(key_type()));
+      ASSERT_NE(m3.end(), m3.find(key_type()));
+      m2.merge(m3);
+      ASSERT_EQ(1, m3.size());
+      ASSERT_NE(m3.end(), m3.find(key_type()));
+      ASSERT_TRUE(m2.find(key_type()));
+      for (auto const &el: initialize_test_map<map_type>().data()) {
+        ASSERT_TRUE(m2.find(el.first));
+      }
+    }
+    // merge(multimap &&)
+    {
+      auto init = initialize_test_map<map_type>().data();
+      multimap m1(init.begin(), init.end());
+      map_type m2;
+      ASSERT_FALSE(m1.empty());
+      ASSERT_TRUE(m2.empty());
+      m2.merge(std::move(m1));
+      ASSERT_TRUE(m1.empty());
+      ASSERT_FALSE(m2.empty());
+      (void) m2.insert({key_type(), mapped_type()});
+      multimap m3 = {{key_type(), mapped_type()}};
+      ASSERT_TRUE(m2.find(key_type()));
+      ASSERT_NE(m3.end(), m3.find(key_type()));
+      m2.merge(std::move(m3));
+      ASSERT_EQ(1, m3.size());
+      ASSERT_NE(m3.end(), m3.find(key_type()));
+      ASSERT_TRUE(m2.find(key_type()));
+      for (auto const &el: initialize_test_map<map_type>().data()) {
+        ASSERT_TRUE(m2.find(el.first));
+      }
+    }
+
+    // merge(map_type &)
+    {
+      map_type m1 = initialize_test_map<map_type>();
+      map_type m2;
+      ASSERT_FALSE(m1.empty());
+      ASSERT_TRUE(m2.empty());
+      m2.merge(m1);
+      ASSERT_TRUE(m1.empty());
+      ASSERT_FALSE(m2.empty());
+      (void) m2.insert({key_type(), mapped_type()});
+      map_type m3 = {{key_type(), mapped_type()}};
+      ASSERT_TRUE(m2.find(key_type()));
+      ASSERT_TRUE(m3.find(key_type()));
+      m3.merge(m2);
+      ASSERT_EQ(1, m2.size());
+      ASSERT_TRUE(m2.find(key_type()));
+      ASSERT_TRUE(m3.find(key_type()));
+      for (auto const &el: initialize_test_map<map_type>().data()) {
+        ASSERT_TRUE(m3.find(el.first));
+      }
+    }
+    // merge(map_type &&)
+    {
+      map_type m1 = initialize_test_map<map_type>();
+      map_type m2;
+      ASSERT_FALSE(m1.empty());
+      ASSERT_TRUE(m2.empty());
+      m2.merge(std::move(m1));
+      ASSERT_TRUE(m1.empty());
+      ASSERT_FALSE(m2.empty());
+      (void) m2.insert({key_type(), mapped_type()});
+      map_type m3 = {{key_type(), mapped_type()}};
+      ASSERT_TRUE(m2.find(key_type()));
+      ASSERT_TRUE(m3.find(key_type()));
+      m3.merge(std::move(m2));
+      ASSERT_EQ(1, m2.size());
+      ASSERT_TRUE(m2.find(key_type()));
+      ASSERT_TRUE(m3.find(key_type()));
+      for (auto const &el: initialize_test_map<map_type>().data()) {
+        ASSERT_TRUE(m3.find(el.first));
+      }
+    }
+
+    if constexpr (std::is_same_v<map_type, ::Concurrent::ShardedUnorderedMap<key_type, mapped_type, ::Concurrent::DefaultUnorderedMapShardCount, hasher, key_equal, allocator_type>>) {
+      // Sanity check that these tests are running.
+      std::cerr << "[          ] Testing merge(shard_type)\n";
+
+      using shard_type = typename map_type::shard_type;
+
+      // merge(shard_type &)
+      {
+        shard_type m1 = initialize_test_map<shard_type>();
+        map_type m2;
+        ASSERT_FALSE(m1.empty());
+        ASSERT_TRUE(m2.empty());
+        m2.merge(m1);
+        ASSERT_TRUE(m1.empty());
+        ASSERT_FALSE(m2.empty());
+        (void) m1.insert({key_type(), mapped_type()});
+        map_type m3 = {{key_type(), mapped_type()}};
+        ASSERT_TRUE(m1.find(key_type()));
+        ASSERT_TRUE(m3.find(key_type()));
+        m3.merge(m1);
+        ASSERT_EQ(1, m1.size());
+        ASSERT_EQ(1, m3.size());
+        ASSERT_TRUE(m1.find(key_type()));
+        ASSERT_TRUE(m3.find(key_type()));
+      }
+      // merge(shard_type &&)
+      {
+        shard_type m1 = initialize_test_map<shard_type>();
+        map_type m2;
+        ASSERT_FALSE(m1.empty());
+        ASSERT_TRUE(m2.empty());
+        m2.merge(std::move(m1));
+        ASSERT_TRUE(m1.empty());
+        ASSERT_FALSE(m2.empty());
+        (void) m1.insert({key_type(), mapped_type()});
+        map_type m3 = {{key_type(), mapped_type()}};
+        ASSERT_TRUE(m1.find(key_type()));
+        ASSERT_TRUE(m3.find(key_type()));
+        m3.merge(std::move(m1));
+        ASSERT_EQ(1, m1.size());
+        ASSERT_EQ(1, m3.size());
+        ASSERT_TRUE(m1.find(key_type()));
+        ASSERT_TRUE(m3.find(key_type()));
+      }
+    }
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -384,28 +574,29 @@ namespace {
                               insert_or_assign,                  //
                               erase,                             //
                               swap,                              //
-                              extract                            //
+                              extract,                           //
+                              merge                              //
   );
 
-  using Types = ::testing::Types<                     // Comments so clang-format keeps
-      UnorderedMap<std::string, uint32_t>,            // these lines broken.
-      UnorderedMap<std::string, std::string>,         //
-      UnorderedMap<std::string, float>,               //
-      UnorderedMap<int32_t, uint64_t>,                //
-      UnorderedMap<int64_t, size_t>,                  //
-      UnorderedMap<int32_t, std::string>,             //
-      UnorderedMap<int64_t, std::string>,             //
-      UnorderedMap<Foo, int16_t, FooHash>,            //
-      UnorderedMap<int16_t, Foo>,                     //
-      ShardedUnorderedMap<std::string, uint32_t>,     //
-      ShardedUnorderedMap<std::string, std::string>,  //
-      ShardedUnorderedMap<std::string, float>,        //
-      ShardedUnorderedMap<int32_t, uint64_t>,         //
-      ShardedUnorderedMap<int64_t, size_t>,           //
-      ShardedUnorderedMap<int32_t, std::string>,      //
-      ShardedUnorderedMap<int64_t, std::string>,      //
-      ShardedUnorderedMap<Foo, int16_t, 32, FooHash>, //
-      ShardedUnorderedMap<int16_t, Foo>>;             //
+  using Types = ::testing::Types<                                                              // Comments so clang-format keeps
+      UnorderedMap<std::string, uint32_t>,                                                     // these lines broken.
+      UnorderedMap<std::string, std::string>,                                                  //
+      UnorderedMap<std::string, float>,                                                        //
+      UnorderedMap<int32_t, uint64_t>,                                                         //
+      UnorderedMap<int64_t, size_t>,                                                           //
+      UnorderedMap<int32_t, std::string>,                                                      //
+      UnorderedMap<int64_t, std::string>,                                                      //
+      UnorderedMap<Foo, int16_t, FooHash>,                                                     //
+      UnorderedMap<int16_t, Foo>,                                                              //
+      ShardedUnorderedMap<std::string, uint32_t>,                                              //
+      ShardedUnorderedMap<std::string, std::string>,                                           //
+      ShardedUnorderedMap<std::string, float>,                                                 //
+      ShardedUnorderedMap<int32_t, uint64_t>,                                                  //
+      ShardedUnorderedMap<int64_t, size_t>,                                                    //
+      ShardedUnorderedMap<int32_t, std::string>,                                               //
+      ShardedUnorderedMap<int64_t, std::string>,                                               //
+      ShardedUnorderedMap<Foo, int16_t, ::Concurrent::DefaultUnorderedMapShardCount, FooHash>, //
+      ShardedUnorderedMap<int16_t, Foo>>;                                                      //
 
   INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, CommonConcurrentUnorderedMapTests, Types);
 
