@@ -353,6 +353,23 @@ namespace {
     }
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, extract) {
+    using map_type    = TypeParam;
+    using key_type    = typename map_type::key_type;
+    using mapped_type = typename map_type::mapped_type;
+
+    map_type m = initialize_test_map<map_type>();
+    (void) m.insert_or_assign(key_type(), mapped_type());
+    ASSERT_TRUE(m.find(key_type()));
+    auto node = m.extract(key_type());
+    ASSERT_FALSE(node.empty());
+    ASSERT_EQ(mapped_type(), node.mapped());
+    ASSERT_FALSE(m.find(key_type()));
+    ASSERT_TRUE(m.insert(std::move(node)));
+    ASSERT_TRUE(node.empty());
+    ASSERT_TRUE(m.find(key_type()));
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -366,7 +383,8 @@ namespace {
                               insert,                            //
                               insert_or_assign,                  //
                               erase,                             //
-                              swap                               //
+                              swap,                              //
+                              extract                            //
   );
 
   using Types = ::testing::Types<                     // Comments so clang-format keeps
