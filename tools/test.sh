@@ -3,5 +3,5 @@
 set -e
 pushd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null
 ./build.sh
-../build/ConcurrentMap_test
+../build/Concurrency_test
 popd >/dev/null

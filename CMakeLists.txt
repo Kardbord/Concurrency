@@ -1,6 +1,6 @@
 # ------------------------------ Setup ------------------------------- #
 cmake_minimum_required(VERSION 3.16.3)
-project(ConcurrentMap)
+project(Concurrency)
 set(CMAKE_CXX_STANDARD 17)
 option(CodeCoverage "CodeCoverage" OFF)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules/)
