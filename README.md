@@ -1,6 +1,6 @@
-[![Build and Test](https://github.com/TannerKvarfordt/Concurrency/actions/workflows/cmake.yml/badge.svg)](https://github.com/TannerKvarfordt/Concurrency/actions/workflows/cmake.yml)
-
 # Concurrency
+
+[![Build and Test](https://github.com/TannerKvarfordt/Concurrency/actions/workflows/cmake.yml/badge.svg)](https://github.com/TannerKvarfordt/Concurrency/actions/workflows/cmake.yml)
 
 This project provides thread-safe wrappers around C++ standard library containers. Most standard library functionality is preserved, though
 some exceptions have to be made to remove footguns in the context of concurrent access. Notably, iterator access is not supported for most
