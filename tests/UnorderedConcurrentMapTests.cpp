@@ -104,7 +104,7 @@ namespace {
     }
 
     try {
-      umap[key_type()];
+      umap.at(key_type());
       FAIL() << "Expected std::out_of_range.";
     } catch (std::out_of_range const &) {
     } catch (...) {

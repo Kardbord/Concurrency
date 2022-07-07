@@ -217,11 +217,21 @@ namespace Concurrent {
     }
 
     // Returns a copy of the element mapped to
-    // the provided key. Does bounds checking.
-    Val operator[](const Key &key) const { return at(key); }
+    // the provided key. If no element is present,
+    // a new one is default constructed.
+    Val operator[](const Key &key) {
+      if (this->find(key)) return this->at(key);
+      auto lock = lock_for_writing();
+      return m_map[key];
+    }
     // Returns a copy of the element mapped to
-    // the provided key. Does bounds checking.
-    Val operator[](Key &&key) const { return at(key); }
+    // the provided key. If no element is present,
+    // a new one is default constructed.
+    Val operator[](Key &&key) {
+      if (this->find(key)) return this->at(key);
+      auto lock = lock_for_writing();
+      return m_map[key];
+    }
 
     size_type count(const Key &key) const {
       auto lock = lock_for_reading();

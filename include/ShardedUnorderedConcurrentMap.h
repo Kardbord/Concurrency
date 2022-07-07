@@ -193,11 +193,13 @@ namespace Concurrent {
     Val at(const Key &&key) const { return get_shard(key).at(key); }
 
     // Returns a copy of the element mapped to
-    // the provided key. Does bounds checking.
-    Val operator[](const Key &key) const { return at(key); }
+    // the provided key. If no element is present,
+    // a new one is default constructed.
+    Val operator[](const Key &key) { return get_mutable_shard(key)[key]; }
     // Returns a copy of the element mapped to
-    // the provided key. Does bounds checking.
-    Val operator[](Key &&key) const { return at(key); }
+    // the provided key. If no element is present,
+    // a new one is default constructed.
+    Val operator[](Key &&key) { return get_mutable_shard(key)[key]; }
 
     size_type count(const Key &key) const { return get_shard(key).count(key); }
 
