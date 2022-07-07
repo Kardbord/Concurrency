@@ -560,6 +560,39 @@ namespace {
     }
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, at) {
+    using map_type   = TypeParam;
+    using value_type = typename map_type::value_type;
+
+    // at(const Key &)
+    {
+      map_type m;
+      auto key = value_type().first;
+      try {
+        (void) m.at(key);
+        FAIL() << "Expected std::out_of_range.";
+      } catch (std::out_of_range const &) {
+      } catch (...) {
+        FAIL() << "Expected std::out_of_range.";
+      }
+      ASSERT_TRUE(m.insert(value_type()));
+      ASSERT_EQ(value_type().second, m.at(key));
+    }
+    // at(const Key &&)
+    {
+      map_type m;
+      try {
+        (void) m.at(value_type().first);
+        FAIL() << "Expected std::out_of_range.";
+      } catch (std::out_of_range const &) {
+      } catch (...) {
+        FAIL() << "Expected std::out_of_range.";
+      }
+      ASSERT_TRUE(m.insert(value_type()));
+      ASSERT_EQ(value_type().second, m.at(value_type().first));
+    }
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -575,7 +608,8 @@ namespace {
                               erase,                             //
                               swap,                              //
                               extract,                           //
-                              merge                              //
+                              merge,                             //
+                              at                                 //
   );
 
   using Types = ::testing::Types<                                                              // Comments so clang-format keeps
