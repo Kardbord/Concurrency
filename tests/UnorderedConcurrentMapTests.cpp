@@ -294,7 +294,7 @@ namespace {
                               clear,                             //
                               insert,                            //
                               insert_or_assign                   //
-                              // TODO: resume testing with "emplace"
+                              // TODO: resume testing with "try_emplace"
   );
 
   using Types = ::testing::Types<                     // Comments so clang-format keeps
@@ -376,6 +376,14 @@ namespace {
   TEST_F(UnshardedConcurrentUnorderedMapTests, max_size) {
     UnorderedMap<std::string, std::string> umap;
     ASSERT_LT(0, umap.max_size());
+  }
+
+  TEST_F(UnshardedConcurrentUnorderedMapTests, emplace) {
+    UnorderedMap<std::string, std::string> umap;
+    ASSERT_TRUE(umap.empty());
+    ASSERT_TRUE(umap.emplace("foo", "bar"));
+    ASSERT_FALSE(umap.emplace("foo", "baz"));
+    ASSERT_EQ("bar", umap["foo"]);
   }
 
 } // anonymous namespace
