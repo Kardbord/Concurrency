@@ -296,6 +296,29 @@ namespace {
     ASSERT_EQ(1, m.erase(k));
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, swap) {
+    using map_type    = TypeParam;
+    using key_type    = typename map_type::key_type;
+    using value_type  = typename map_type::value_type;
+
+    // swap(UnorderedMap<Key, Val, Hash, Pred, Allocator> &other)
+    {
+      auto m1 = initialize_test_map<map_type>();
+      auto m2 = initialize_test_map<map_type>();
+      ASSERT_EQ(m1, m2) << "Error in test setup logic, m1 and m2 should start off equal.";
+      (void) m1.erase(key_type());
+      (void) m2.erase(key_type());
+      ASSERT_TRUE(m1.insert(value_type()));
+      ASSERT_NE(m1, m2);
+      ASSERT_TRUE(m1.find(key_type()));
+      ASSERT_FALSE(m2.find(key_type()));
+      m1.swap(m2);
+      ASSERT_NE(m1, m2);
+      ASSERT_FALSE(m1.find(key_type()));
+      ASSERT_TRUE(m2.find(key_type()));
+    }
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -308,7 +331,8 @@ namespace {
                               clear,                             //
                               insert,                            //
                               insert_or_assign,                  //
-                              erase                              //
+                              erase,                             //
+                              swap                               //
   );
 
   using Types = ::testing::Types<                     // Comments so clang-format keeps

@@ -134,7 +134,7 @@ namespace Concurrent {
     size_type erase(const Key &key) { return get_mutable_shard(key).erase(key); }
 
     void swap(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &other) noexcept {
-      for (auto i = 0; i < ShardCount; ++i) {
+      for (uint32_t i = 0; i < ShardCount; ++i) {
         this->m_shards[i].swap(other.m_shards[i]);
       }
     }
@@ -174,12 +174,12 @@ namespace Concurrent {
       }
     }
     void merge(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &source) {
-      for (auto i = 0; i < ShardCount; ++i) {
+      for (uint32_t i = 0; i < ShardCount; ++i) {
         this->merge(source.m_shards[i]);
       }
     }
     void merge(ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator> &&source) {
-      for (auto i = 0; i < ShardCount; ++i) {
+      for (uint32_t i = 0; i < ShardCount; ++i) {
         this->merge(source.m_shards[i]);
       }
     }
