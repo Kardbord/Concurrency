@@ -1,5 +1,6 @@
 #include <ShardedUnorderedConcurrentMap.h>
 #include <UnorderedConcurrentMap.h>
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <string>
 #include <type_traits>
@@ -297,9 +298,9 @@ namespace {
   }
 
   TYPED_TEST_P(CommonConcurrentUnorderedMapTests, swap) {
-    using map_type    = TypeParam;
-    using key_type    = typename map_type::key_type;
-    using value_type  = typename map_type::value_type;
+    using map_type   = TypeParam;
+    using key_type   = typename map_type::key_type;
+    using value_type = typename map_type::value_type;
 
     // swap(UnorderedMap<Key, Val, Hash, Pred, Allocator> &other)
     {
@@ -313,6 +314,39 @@ namespace {
       ASSERT_TRUE(m1.find(key_type()));
       ASSERT_FALSE(m2.find(key_type()));
       m1.swap(m2);
+      ASSERT_NE(m1, m2);
+      ASSERT_FALSE(m1.find(key_type()));
+      ASSERT_TRUE(m2.find(key_type()));
+    }
+
+    // swap(internal_map_type &other)
+    {
+      auto m1  = initialize_test_map<map_type>();
+      auto m2d = initialize_test_map<map_type>().data();
+      ASSERT_EQ(m1.data(), m2d) << "Error in test setup logic, m1 and m2 should start off equal.";
+      (void) m1.erase(key_type());
+      ASSERT_TRUE(m1.insert(value_type()));
+      ASSERT_NE(m1.data(), m2d);
+      ASSERT_TRUE(m1.find(key_type()));
+      ASSERT_TRUE(m2d.find(key_type()) == m2d.end());
+      m1.swap(m2d);
+      ASSERT_NE(m1.data(), m2d);
+      ASSERT_FALSE(m1.find(key_type()));
+      ASSERT_TRUE(m2d.find(key_type()) != m2d.end());
+    }
+
+    // std::swap
+    {
+      auto m1 = initialize_test_map<map_type>();
+      auto m2 = initialize_test_map<map_type>();
+      ASSERT_EQ(m1, m2) << "Error in test setup logic, m1 and m2 should start off equal.";
+      (void) m1.erase(key_type());
+      (void) m2.erase(key_type());
+      ASSERT_TRUE(m1.insert(value_type()));
+      ASSERT_NE(m1, m2);
+      ASSERT_TRUE(m1.find(key_type()));
+      ASSERT_FALSE(m2.find(key_type()));
+      std::swap(m1, m2);
       ASSERT_NE(m1, m2);
       ASSERT_FALSE(m1.find(key_type()));
       ASSERT_TRUE(m2.find(key_type()));
