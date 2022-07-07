@@ -16,10 +16,6 @@ namespace Concurrent {
   // counterpart of the same name are documented with comments, as are functions that
   // do not exist for std::unordered_map.
   //
-  // TODO: Finish implementation. Support all functions as underlying UnorderedConcurrentMap.
-  // TODO: Write unit tests.
-  // TODO: Benchmark.
-  //
   // https://en.cppreference.com/w/cpp/container/unordered_map
   // TODO: Support emplace() and try_emplace().
   template <class Key, class Val, uint32_t ShardCount = DefaultUnorderedMapShardCount, class Hash = std::hash<Key>, class Pred = std::equal_to<Key>, class Allocator = std::allocator<std::pair<const Key, Val>>>
