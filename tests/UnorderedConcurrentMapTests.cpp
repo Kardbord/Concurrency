@@ -802,4 +802,30 @@ namespace {
     }
   }
 
+  TEST_F(UnshardedConcurrentUnorderedMapTests, bucket_count) {
+    using map_type = ::Concurrent::UnorderedMap<std::string, uint32_t>;
+
+    map_type m = initialize_test_map<map_type>();
+    ASSERT_LT(0, m.bucket_count());
+  }
+  TEST_F(UnshardedConcurrentUnorderedMapTests, max_bucket_count) {
+    using map_type = ::Concurrent::UnorderedMap<std::string, uint32_t>;
+
+    map_type m = initialize_test_map<map_type>();
+    ASSERT_LT(0, m.max_bucket_count());
+  }
+  TEST_F(UnshardedConcurrentUnorderedMapTests, bucket_size) {
+    using map_type = ::Concurrent::UnorderedMap<std::string, uint32_t>;
+
+    map_type m = initialize_test_map<map_type>();
+    m.insert({"foo", 1});
+    ASSERT_LE(1, m.bucket_size(m.bucket("foo")));
+  }
+  TEST_F(UnshardedConcurrentUnorderedMapTests, bucket) {
+    using map_type = ::Concurrent::UnorderedMap<std::string, uint32_t>;
+
+    map_type m = initialize_test_map<map_type>();
+    m.insert({"foo", 1});
+    ASSERT_LE(0, m.bucket("foo"));
+  }
 } // anonymous namespace
