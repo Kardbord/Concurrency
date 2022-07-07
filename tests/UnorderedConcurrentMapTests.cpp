@@ -664,6 +664,35 @@ namespace {
     }
   }
 
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, load_factor) {
+    using map_type = TypeParam;
+
+    map_type m = initialize_test_map<map_type>();
+    ASSERT_NE(0, m.load_factor());
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, max_load_factor) {
+    using map_type = TypeParam;
+
+    map_type m = initialize_test_map<map_type>();
+    m.max_load_factor(0.54321);
+    ASSERT_NEAR(0.54321, m.max_load_factor(), 0.001);
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, rehash) {
+    using map_type = TypeParam;
+
+    map_type m = initialize_test_map<map_type>();
+    m.rehash(100);
+  }
+
+  TYPED_TEST_P(CommonConcurrentUnorderedMapTests, reserve) {
+    using map_type = TypeParam;
+
+    map_type m = initialize_test_map<map_type>();
+    m.reserve(100);
+  }
+
   REGISTER_TYPED_TEST_SUITE_P(CommonConcurrentUnorderedMapTests, // Comments so clang-format keeps
                               DefaultConstructor,                // these lines broken.
                               CopyConstructor,                   //
@@ -684,7 +713,11 @@ namespace {
                               subscript,                         //
                               count,                             //
                               find,                              //
-                              data                               //
+                              data,                              //
+                              load_factor,                       //
+                              max_load_factor,                   //
+                              rehash,                            //
+                              reserve                            //
   );
 
   using Types = ::testing::Types<                                                              // Comments so clang-format keeps
@@ -827,5 +860,22 @@ namespace {
     map_type m = initialize_test_map<map_type>();
     m.insert({"foo", 1});
     ASSERT_LE(0, m.bucket("foo"));
+  }
+
+  TEST_F(ShardedConcurrentUnorderedMapTests, shard_count) {
+    ShardedUnorderedMap<std::string, std::string, ::Concurrent::DefaultUnorderedMapShardCount> umap{
+        {"foo", "qux"},
+        {"bar", "quux"},
+        {"baz", "quuux"},
+    };
+
+    ASSERT_EQ(::Concurrent::DefaultUnorderedMapShardCount, umap.shard_count());
+  }
+
+  TEST_F(ShardedConcurrentUnorderedMapTests, shard_load_factor) {
+    ShardedUnorderedMap<std::string, std::string, ::Concurrent::DefaultUnorderedMapShardCount> umap;
+    for (uint32_t i = 0; i < ::Concurrent::DefaultUnorderedMapShardCount; ++i) {
+      ASSERT_NEAR(0, umap.shard_load_factor(i), 0.0001);
+    }
   }
 } // anonymous namespace

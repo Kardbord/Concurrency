@@ -284,7 +284,7 @@ namespace Concurrent {
       return m_map.max_load_factor();
     }
 
-    void max_load_factor(float ml) const {
+    void max_load_factor(float ml) {
       auto lock = lock_for_writing();
       m_map.max_load_factor(ml);
     }
@@ -303,8 +303,6 @@ namespace Concurrent {
     hasher hash_function() const { return m_map.hash_function(); }
 
     key_equal key_eq() const { return m_map.key_eq(); }
-
-    // ----------------------------- Lock Interface ----------------------------- //
 
   private:
     // Returns a locked read_lock that prevents concurrent write access to

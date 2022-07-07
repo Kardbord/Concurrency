@@ -263,7 +263,7 @@ namespace Concurrent {
 
     // Returns the current maximum load factor
     // allowed for all shards.
-    float max_load_factor() const { return m_shards.at(0).load_factor(); }
+    float max_load_factor() const { return m_shards.at(0).max_load_factor(); }
 
     // Sets the maximum load factor allowed
     // for all shards.
