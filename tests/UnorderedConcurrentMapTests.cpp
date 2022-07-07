@@ -258,7 +258,7 @@ namespace {
     // insert_or_assign(const Key &k, M &&obj)
     {
       map_type m;
-      key_type k = key_type();
+      key_type k    = key_type();
       mapped_type v = mapped_type();
 
       ASSERT_TRUE(m.empty());
@@ -294,7 +294,7 @@ namespace {
                               clear,                             //
                               insert,                            //
                               insert_or_assign                   //
-                              // TODO: resume testing with "try_emplace"
+                                                                 // TODO: resume testing with "try_emplace"
   );
 
   using Types = ::testing::Types<                     // Comments so clang-format keeps
@@ -384,6 +384,32 @@ namespace {
     ASSERT_TRUE(umap.emplace("foo", "bar"));
     ASSERT_FALSE(umap.emplace("foo", "baz"));
     ASSERT_EQ("bar", umap["foo"]);
+  }
+
+  TEST_F(UnshardedConcurrentUnorderedMapTests, try_emplace) {
+    // try_emplace(const Key &k, Args &&...args)
+    {
+      UnorderedMap<std::string, Foo> umap;
+      ASSERT_TRUE(umap.empty());
+      std::string key  = "foo";
+      int val1         = 1;
+      std::string val2 = "bar";
+      ASSERT_TRUE(umap.try_emplace(key, val1, val2));
+      ASSERT_FALSE(umap.try_emplace(key, val1, val2));
+      ASSERT_EQ(Foo(val1, val2), umap["foo"]);
+    }
+
+    // try_emplace(Key &&k, Args &&...args)
+    {
+      UnorderedMap<std::string, Foo> umap;
+      ASSERT_TRUE(umap.empty());
+      std::string key  = "foo";
+      int val1         = 1;
+      std::string val2 = "bar";
+      ASSERT_TRUE(umap.try_emplace(std::move(key), std::move(val1), std::move(val2)));
+      ASSERT_FALSE(umap.try_emplace(std::move(key), std::move(val1), std::move(val2)));
+      ASSERT_EQ(Foo(val1, val2), umap["foo"]);
+    }
   }
 
 } // anonymous namespace
