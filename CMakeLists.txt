@@ -30,10 +30,15 @@ endif()
 include_directories(include)
 
 # -------------------------- Build Examples -------------------------- #
-set("EXAMPLE_SRC"
-  examples/main.cpp
+set("SIMPLE_EXAMPLE_SRC"
+  examples/simple.cpp
 )
-add_executable(${CMAKE_PROJECT_NAME}_example ${EXAMPLE_SRC})
+add_executable(${CMAKE_PROJECT_NAME}_simple_example ${SIMPLE_EXAMPLE_SRC})
+
+set("BENCHMARK_SRC"
+  examples/benchmark.cpp
+)
+add_executable(${CMAKE_PROJECT_NAME}_benchmark ${BENCHMARK_SRC})
 
 # --------------------------- Build Tests ---------------------------- #
 include(FetchContent)
