@@ -24,6 +24,7 @@ namespace Concurrent {
     using mutex_type           = std::shared_mutex;
     using read_lock            = std::shared_lock<mutex_type>;
     using write_lock           = std::unique_lock<mutex_type>;
+    using self_type            = UnorderedMap<Key, Val, Hash, Pred, Allocator>;
     using internal_map_type    = std::unordered_map<Key, Val, Hash, Pred, Allocator>;
     using key_type             = typename internal_map_type::key_type;
     using mapped_type          = typename internal_map_type::mapped_type;
