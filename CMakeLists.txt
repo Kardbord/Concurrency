@@ -31,14 +31,18 @@ include_directories(include)
 
 # -------------------------- Build Examples -------------------------- #
 set("SIMPLE_EXAMPLE_SRC"
-  examples/simple.cpp
+  examples/simple/main.cpp
 )
 add_executable(${CMAKE_PROJECT_NAME}_simple_example ${SIMPLE_EXAMPLE_SRC})
 
-set("BENCHMARK_SRC"
-  examples/benchmark.cpp
+set("MAP_BENCHMARK_SRC"
+  examples/map_benchmark/main.cpp
+  examples/map_benchmark/Benchmark.cpp
 )
-add_executable(${CMAKE_PROJECT_NAME}_benchmark ${BENCHMARK_SRC})
+find_package(Threads REQUIRED)
+add_executable(${CMAKE_PROJECT_NAME}_map_benchmark ${MAP_BENCHMARK_SRC})
+target_include_directories(${CMAKE_PROJECT_NAME}_map_benchmark PRIVATE benchmark examples/map_benchmark)
+target_link_libraries(${CMAKE_PROJECT_NAME}_map_benchmark Threads::Threads)
 
 # --------------------------- Build Tests ---------------------------- #
 include(FetchContent)

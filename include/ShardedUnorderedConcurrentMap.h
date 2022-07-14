@@ -22,6 +22,7 @@ namespace Concurrent {
   class ShardedUnorderedMap {
   public:
     // ------------------------------ Member types ------------------------------ //
+    using self_type            = ShardedUnorderedMap<Key, Val, ShardCount, Hash, Pred, Allocator>;
     using shard_type           = UnorderedMap<Key, Val, Hash, Pred, Allocator>;
     using internal_map_type    = typename shard_type::internal_map_type;
     using key_type             = typename shard_type::key_type;
