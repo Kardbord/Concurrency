@@ -2,12 +2,14 @@
 
 namespace Benchmark {
 
-  std::string Result::csv_header() { return "operation,map_type,key_type,val_type,shard_count,operations_per_thread,thread_count,elapsed_ms\n"; }
+  std::string Result::csv_header() {
+    return "operation,map_type,key_type,val_type,shard_count,total_operations,thread_count,avg_operations_per_ms,total_elapsed_ms\n";
+  }
 
   std::string Result::csv_row() const {
     std::stringstream s;
-    s << operation << "," << map_type << "," << key_type << "," << val_type << "," << shard_count << "," << operations_per_thread << "," << thread_count << ","
-      << elapsed_ms.count() << "\n";
+    s << operation << "," << map_type << "," << key_type << "," << val_type << "," << shard_count << "," << total_operations << "," << thread_count << ","
+      << avg_operations_per_ms << "," << total_elapsed_ms.count() << "\n";
     return s.str();
   }
 

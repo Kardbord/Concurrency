@@ -2,13 +2,14 @@
 #define BENCHMARK
 
 #include <ShardedUnorderedConcurrentMap.h>
+#include <atomic>
 #include <chrono>
 #include <sstream>
 #include <string>
 #include <thread>
 #include <vector>
 
-constexpr uint64_t default_benchmark_iterations = 100'000;
+constexpr uint64_t default_benchmark_iterations = 1'000'000;
 
 template <typename>
 struct is_sharded : std::false_type {};
@@ -48,8 +49,9 @@ struct TypeParseTraits;
     }                                                                                                               \
     r.key_type              = TypeParseTraits<typename map_type::key_type>::name;                                   \
     r.val_type              = TypeParseTraits<typename map_type::mapped_type>::name;                                \
-    r.operations_per_thread = iterations;                                                                           \
-    r.elapsed_ms            = ::Benchmark::bench(bfunc, iterations);                                                \
+    r.total_operations      = iterations;                                                                           \
+    r.total_elapsed_ms      = ::Benchmark::bench(bfunc, iterations);                                                \
+    r.avg_operations_per_ms = iterations / static_cast<double>(r.total_elapsed_ms.count());                         \
     return r;                                                                                                       \
   }
 
@@ -73,16 +75,18 @@ namespace Benchmark {
     using ::std::chrono::duration_cast;
     using ::std::chrono::steady_clock;
 
+    std::atomic_uint64_t itr = 0;
+
     std::vector<std::thread> threads;
-    auto thread_func = [](Functor &&f, uint64_t const iterations) -> void {
-      for (uint64_t i = 0; i < iterations; ++i) {
+    auto thread_func = [&itr, &iterations](Functor &&f) -> void {
+      for ((void) itr; itr < iterations; ++itr) {
         f();
       }
     };
 
     auto start = steady_clock::now();
     for (uint32_t i = 0; i < std::thread::hardware_concurrency(); ++i) {
-      threads.emplace_back(thread_func, f, iterations);
+      threads.emplace_back(thread_func, f);
     }
 
     for (auto &t: threads) {
@@ -97,8 +101,9 @@ namespace Benchmark {
     ::std::string key_type{};
     ::std::string val_type{};
     ::std::string shard_count{};
-    uint64_t operations_per_thread{};
-    ::std::chrono::milliseconds elapsed_ms{};
+    uint64_t total_operations{};
+    double avg_operations_per_ms{};
+    ::std::chrono::milliseconds total_elapsed_ms{};
     uint32_t thread_count{std::thread::hardware_concurrency()};
 
     static std::string csv_header();
