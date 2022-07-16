@@ -8,19 +8,16 @@ wrappers.
 
 ## [`std::unordered_map`](https://en.cppreference.com/w/cpp/container/unordered_map)
 
-The following wrappers around [`std::unordered_map`](https://en.cppreference.com/w/cpp/container/unordered_map)
-are provided.
+The following wrappers around `std::unordered_map` are provided.
 
-### [`Concurrent::UnorderedMap`](include/UnorderedConcurrentMap.h)
+### [`::Concurrent::UnorderedMap`](include/UnorderedConcurrentMap.h)
 
-[`Concurrent::UnorderedMap`](include/UnorderedConcurrentMap.h) is a simple wrapper around
-[`std::unordered_map`](https://en.cppreference.com/w/cpp/container/unordered_map) which
+`::Concurrent::UnorderedMap` is a simple wrapper around `std::unordered_map` which
 allows thread-safe access via an internal [`std::shared_mutex`](https://en.cppreference.com/w/cpp/thread/shared_mutex).
 
-### [`Concurrent::ShardedUnorderedMap`](include/ShardedUnorderedConcurrentMap.h)
+### [`::Concurrent::ShardedUnorderedMap`](include/ShardedUnorderedConcurrentMap.h)
 
-[`Concurrent::ShardedUnorderedMap`](include/ShardedUnorderedConcurrentMap.h) provides the same interfaces
-as [`Concurrent::UnorderedMap`](include/UnorderedConcurrentMap.h), but employs sharding in an effort to improve
-write-access performance. By splitting the underlying data into multiple [`Concurrent::UnorderedMap`](include/UnorderedConcurrentMap.h)s, multiple
+`::Concurrent::ShardedUnorderedMap` provides the same interfaces as `::Concurrent::UnorderedMap`, but employs sharding in an effort to improve
+write-access performance. By splitting the underlying data into multiple `::Concurrent::UnorderedMap`s, multiple
 threads may obtain write access at once, provided the respective keys they are accessing are stored in different
-shards.
+shards. See the [map_benchmark example](examples/map_benchmark/) for performance metrics.
