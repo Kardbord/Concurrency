@@ -31,35 +31,52 @@ struct TypeParseTraits;
   const char *TypeParseTraits<X>::name = #X
 
 // Register a map benchmark.
-//   bname - the name to give this benchmark function
-//   bfunc - the function which will be timed when the benchmark is invoked --
-//           a lambda of the form [&test_map]() { /* do stuff with test_map */ }
+//   bname         - The name to give this benchmark function.
+//   subiterations - The number of subiterations in bfunc. For example, if bfunc runs the function
+//                   being benchmarked 100 times, then subiterations is 100.
+//   bfunc         - The function which will be timed when the benchmark is invoked --
+//                   a lambda of the form [&test_map]() { /* do stuff with test_map */ }
 // Invoke a registered benchmark using the INVOKE_BENCHMARK macro.
-#define REGISTER_BENCHMARK(bname, bfunc)                                                                            \
-  template <typename map_type>                                                                                      \
-  ::Benchmark::Result bench_##bname(map_type &test_map, uint64_t const iterations = default_benchmark_iterations) { \
-    ::Benchmark::Result r;                                                                                          \
-    r.operation = #bname;                                                                                           \
-    if constexpr (is_sharded<map_type>::value) {                                                                    \
-      r.map_type    = "Sharded";                                                                                    \
-      r.shard_count = std::to_string(test_map.shard_count());                                                       \
-    } else {                                                                                                        \
-      r.map_type    = "Unsharded";                                                                                  \
-      r.shard_count = "N/A";                                                                                        \
-    }                                                                                                               \
-    r.key_type              = TypeParseTraits<typename map_type::key_type>::name;                                   \
-    r.val_type              = TypeParseTraits<typename map_type::mapped_type>::name;                                \
-    r.total_operations      = iterations;                                                                           \
-    r.total_elapsed_ms      = ::Benchmark::bench(bfunc, iterations);                                                \
-    r.avg_operations_per_ms = iterations / static_cast<double>(r.total_elapsed_ms.count());                         \
-    return r;                                                                                                       \
+#define REGISTER_BENCHMARK(bname, subiterations, bfunc)                                                                   \
+  template <typename map_type>                                                                                            \
+  ::Benchmark::Result bench_##bname(map_type &test_map, uint64_t const total_iterations = default_benchmark_iterations) { \
+    static_assert(0 != subiterations, "subiterations must be at least 1");                                                \
+    uint64_t iterations = total_iterations;                                                                               \
+    if (subiterations >= total_iterations) {                                                                              \
+      iterations = 1;                                                                                                     \
+    } else {                                                                                                              \
+      iterations = total_iterations / subiterations;                                                                      \
+    }                                                                                                                     \
+    ::Benchmark::Result r;                                                                                                \
+    r.operation = #bname;                                                                                                 \
+    if constexpr (is_sharded<map_type>::value) {                                                                          \
+      r.map_type    = "Sharded";                                                                                          \
+      r.shard_count = std::to_string(test_map.shard_count());                                                             \
+    } else {                                                                                                              \
+      r.map_type    = "Unsharded";                                                                                        \
+      r.shard_count = "N/A";                                                                                              \
+    }                                                                                                                     \
+    r.key_type              = TypeParseTraits<typename map_type::key_type>::name;                                         \
+    r.val_type              = TypeParseTraits<typename map_type::mapped_type>::name;                                      \
+    r.total_operations      = total_iterations;                                                                           \
+    r.total_elapsed_ms      = ::Benchmark::bench(bfunc, iterations);                                                      \
+    r.avg_operations_per_ms = total_iterations / static_cast<double>(r.total_elapsed_ms.count());                         \
+    return r;                                                                                                             \
   }
 
 // Invoke a registered benchmark.
 //   bname      - the name of a registered benchmark
 //   test_map   - the map to run the registered benchmark function on.
+//   f_setup    - setup function to run prior to benchmarking.
+//   f_teardown - teardown function to run after benchmarking.
 //   return     - a populated ::Benchmark::Result object.
-#define INVOKE_BENCHMARK(bname, test_map) bench_##bname(test_map)
+#define INVOKE_BENCHMARK(bname, test_map, f_setup, f_teardown) \
+  [&test_map]() -> ::Benchmark::Result {                       \
+    f_setup(test_map);                                         \
+    auto r = bench_##bname(test_map);                          \
+    f_teardown(test_map);                                      \
+    return r;                                                  \
+  }()
 
 // Invoke a registered benchmark.
 //   bname      - the name of a registered benchmark
