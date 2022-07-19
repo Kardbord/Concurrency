@@ -5,6 +5,6 @@ pushd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null
 ./build.sh -b Coverage
 popd >/dev/null
 pushd "$(dirname "${BASH_SOURCE[0]}")/../build/" >/dev/null
-make Concurrency_coverage
+make concurrency_coverage
 popd >/dev/null
 echo "View coverage results by opening the html file referenced above in a browser."

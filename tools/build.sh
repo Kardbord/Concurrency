@@ -53,7 +53,6 @@ mkdir -p "$(dirname "${BASH_SOURCE[0]}")/../build"
 pushd "$(dirname "${BASH_SOURCE[0]}")/../build" >/dev/null
 if [[ "${CLEAN}" = "true" ]]; then
   rm -rf ./*
-  git checkout README.md
 fi
 cmake -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" "${EXTRA_CMAKE_OPTS}" .. && make
 popd >/dev/null

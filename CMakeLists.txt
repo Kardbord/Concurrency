@@ -1,6 +1,6 @@
 # ------------------------------ Setup ------------------------------- #
 cmake_minimum_required(VERSION 3.16.3)
-project(Concurrency)
+project(concurrency)
 set(CMAKE_CXX_STANDARD 17)
 option(CodeCoverage "CodeCoverage" OFF)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules/)
@@ -27,13 +27,22 @@ else()
     $<$<CONFIG:DEBUG>:--coverage>
   )
 endif()
-include_directories(include)
+
+# ----------------------------- Library ------------------------------ #
+add_library(${CMAKE_PROJECT_NAME} INTERFACE)
+set(header_files 
+  include/concurrency/UnorderedMap.hpp
+  include/concurrency/ShardedUnorderedMap.hpp)
+target_sources(${CMAKE_PROJECT_NAME} INTERFACE ${header_files})
+target_include_directories(${CMAKE_PROJECT_NAME} INTERFACE include/)
+
 
 # -------------------------- Build Examples -------------------------- #
 set("SIMPLE_EXAMPLE_SRC"
   examples/simple/main.cpp
 )
 add_executable(${CMAKE_PROJECT_NAME}_simple_example ${SIMPLE_EXAMPLE_SRC})
+target_link_libraries(${CMAKE_PROJECT_NAME}_simple_example PRIVATE ${CMAKE_PROJECT_NAME})
 
 set("MAP_BENCHMARK_SRC"
   examples/map_benchmark/main.cpp
@@ -42,7 +51,8 @@ set("MAP_BENCHMARK_SRC"
 find_package(Threads REQUIRED)
 add_executable(${CMAKE_PROJECT_NAME}_map_benchmark ${MAP_BENCHMARK_SRC})
 target_include_directories(${CMAKE_PROJECT_NAME}_map_benchmark PRIVATE benchmark examples/map_benchmark)
-target_link_libraries(${CMAKE_PROJECT_NAME}_map_benchmark Threads::Threads)
+target_link_libraries(${CMAKE_PROJECT_NAME}_map_benchmark PRIVATE Threads::Threads)
+target_link_libraries(${CMAKE_PROJECT_NAME}_map_benchmark PRIVATE ${CMAKE_PROJECT_NAME})
 
 # --------------------------- Build Tests ---------------------------- #
 include(FetchContent)
@@ -59,7 +69,8 @@ set("TEST_SRC"
 )
 enable_testing()
 add_executable(${CMAKE_PROJECT_NAME}_test ${TEST_SRC})
-target_link_libraries(${CMAKE_PROJECT_NAME}_test gtest_main)
+target_link_libraries(${CMAKE_PROJECT_NAME}_test PRIVATE gtest_main)
+target_link_libraries(${CMAKE_PROJECT_NAME}_test PRIVATE ${CMAKE_PROJECT_NAME})
 include(GoogleTest)
 gtest_discover_tests(${CMAKE_PROJECT_NAME}_test)
 
