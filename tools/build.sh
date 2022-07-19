@@ -49,6 +49,7 @@ if [[ "${BUILD_TYPE}" = "Coverage" ]]; then
   EXTRA_CMAKE_OPTS="-DCodeCoverage=ON"
 fi
 
+mkdir -p "$(dirname "${BASH_SOURCE[0]}")/../build"
 pushd "$(dirname "${BASH_SOURCE[0]}")/../build" >/dev/null
 if [[ "${CLEAN}" = "true" ]]; then
   rm -rf ./*

@@ -1,7 +1,7 @@
 #ifndef BENCHMARK
 #define BENCHMARK
 
-#include <ShardedUnorderedConcurrentMap.h>
+#include <concurrency/ShardedUnorderedMap.hpp>
 #include <atomic>
 #include <chrono>
 #include <sstream>
@@ -15,10 +15,10 @@ template <typename>
 struct is_sharded : std::false_type {};
 
 template <typename Key, typename Val>
-struct is_sharded<::Concurrent::ShardedUnorderedMap<Key, Val>> : std::true_type {};
+struct is_sharded<::concurrency::ShardedUnorderedMap<Key, Val>> : std::true_type {};
 
 template <typename Key, typename Val, uint32_t ShardCount>
-struct is_sharded<::Concurrent::ShardedUnorderedMap<Key, Val, ShardCount>> : std::true_type {};
+struct is_sharded<::concurrency::ShardedUnorderedMap<Key, Val, ShardCount>> : std::true_type {};
 
 template <typename T>
 struct TypeParseTraits;

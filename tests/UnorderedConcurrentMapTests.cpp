@@ -1,13 +1,13 @@
-#include <ShardedUnorderedConcurrentMap.h>
-#include <UnorderedConcurrentMap.h>
+#include <concurrency/ShardedUnorderedMap.hpp>
+#include <concurrency/UnorderedMap.hpp>
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <string>
 #include <type_traits>
 
 namespace {
-  using ::Concurrent::ShardedUnorderedMap;
-  using ::Concurrent::UnorderedMap;
+  using ::concurrency::ShardedUnorderedMap;
+  using ::concurrency::UnorderedMap;
 
   // Custom struct for use as a map value.
   struct Foo {
@@ -79,8 +79,8 @@ namespace {
   }
 
   // Common test cases for both
-  // ::Concurrent::ShardedUnorderedMap, and
-  // ::Concurrent::UnorderedMap.
+  // ::concurrency::ShardedUnorderedMap, and
+  // ::concurrency::UnorderedMap.
   template <typename T>
   class CommonConcurrentUnorderedMapTests : public ::testing::Test {};
   class UnshardedConcurrentUnorderedMapTests : public ::testing::Test {};
@@ -513,7 +513,7 @@ namespace {
       }
     }
 
-    if constexpr (std::is_same_v<map_type, ::Concurrent::ShardedUnorderedMap<key_type, mapped_type, ::Concurrent::DefaultUnorderedMapShardCount, hasher, key_equal, allocator_type>>) {
+    if constexpr (std::is_same_v<map_type, ::concurrency::ShardedUnorderedMap<key_type, mapped_type, ::concurrency::DefaultUnorderedMapShardCount, hasher, key_equal, allocator_type>>) {
       // Sanity check that these tests are running.
       std::cerr << "[          ] Testing merge(shard_type)\n";
 
@@ -781,7 +781,7 @@ namespace {
       ShardedUnorderedMap<int64_t, size_t>,                                                    //
       ShardedUnorderedMap<int32_t, std::string>,                                               //
       ShardedUnorderedMap<int64_t, std::string>,                                               //
-      ShardedUnorderedMap<Foo, int16_t, ::Concurrent::DefaultUnorderedMapShardCount, FooHash>, //
+      ShardedUnorderedMap<Foo, int16_t, ::concurrency::DefaultUnorderedMapShardCount, FooHash>, //
       ShardedUnorderedMap<int16_t, Foo>>;                                                      //
 
   INSTANTIATE_TYPED_TEST_SUITE_P(TypedTests, CommonConcurrentUnorderedMapTests, Types);
@@ -880,26 +880,26 @@ namespace {
   }
 
   TEST_F(UnshardedConcurrentUnorderedMapTests, bucket_count) {
-    using map_type = ::Concurrent::UnorderedMap<std::string, uint32_t>;
+    using map_type = ::concurrency::UnorderedMap<std::string, uint32_t>;
 
     map_type m = initialize_test_map<map_type>();
     ASSERT_LT(0, m.bucket_count());
   }
   TEST_F(UnshardedConcurrentUnorderedMapTests, max_bucket_count) {
-    using map_type = ::Concurrent::UnorderedMap<std::string, uint32_t>;
+    using map_type = ::concurrency::UnorderedMap<std::string, uint32_t>;
 
     map_type m = initialize_test_map<map_type>();
     ASSERT_LT(0, m.max_bucket_count());
   }
   TEST_F(UnshardedConcurrentUnorderedMapTests, bucket_size) {
-    using map_type = ::Concurrent::UnorderedMap<std::string, uint32_t>;
+    using map_type = ::concurrency::UnorderedMap<std::string, uint32_t>;
 
     map_type m = initialize_test_map<map_type>();
     m.insert({"foo", 1});
     ASSERT_LE(1, m.bucket_size(m.bucket("foo")));
   }
   TEST_F(UnshardedConcurrentUnorderedMapTests, bucket) {
-    using map_type = ::Concurrent::UnorderedMap<std::string, uint32_t>;
+    using map_type = ::concurrency::UnorderedMap<std::string, uint32_t>;
 
     map_type m = initialize_test_map<map_type>();
     m.insert({"foo", 1});
@@ -907,18 +907,18 @@ namespace {
   }
 
   TEST_F(ShardedConcurrentUnorderedMapTests, shard_count) {
-    ShardedUnorderedMap<std::string, std::string, ::Concurrent::DefaultUnorderedMapShardCount> umap{
+    ShardedUnorderedMap<std::string, std::string, ::concurrency::DefaultUnorderedMapShardCount> umap{
         {"foo", "qux"},
         {"bar", "quux"},
         {"baz", "quuux"},
     };
 
-    ASSERT_EQ(::Concurrent::DefaultUnorderedMapShardCount, umap.shard_count());
+    ASSERT_EQ(::concurrency::DefaultUnorderedMapShardCount, umap.shard_count());
   }
 
   TEST_F(ShardedConcurrentUnorderedMapTests, shard_load_factor) {
-    ShardedUnorderedMap<std::string, std::string, ::Concurrent::DefaultUnorderedMapShardCount> umap;
-    for (uint32_t i = 0; i < ::Concurrent::DefaultUnorderedMapShardCount; ++i) {
+    ShardedUnorderedMap<std::string, std::string, ::concurrency::DefaultUnorderedMapShardCount> umap;
+    for (uint32_t i = 0; i < ::concurrency::DefaultUnorderedMapShardCount; ++i) {
       ASSERT_NEAR(0, umap.shard_load_factor(i), 0.0001);
     }
   }

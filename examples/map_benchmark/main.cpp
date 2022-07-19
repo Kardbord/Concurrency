@@ -1,13 +1,13 @@
 #include <Benchmark.h>
-#include <ShardedUnorderedConcurrentMap.h>
-#include <UnorderedConcurrentMap.h>
+#include <concurrency/ShardedUnorderedMap.hpp>
+#include <concurrency/UnorderedMap.hpp>
 #include <cstdlib>
 #include <iostream>
 #include <type_traits>
 #include <vector>
 
-using ::Concurrent::ShardedUnorderedMap;
-using ::Concurrent::UnorderedMap;
+using ::concurrency::ShardedUnorderedMap;
+using ::concurrency::UnorderedMap;
 
 template <typename map_type>
 void teardown_test_map(map_type &m) {

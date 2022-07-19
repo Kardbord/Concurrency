@@ -1,8 +1,8 @@
-#include <ShardedUnorderedConcurrentMap.h>
+#include <concurrency/ShardedUnorderedMap.hpp>
 #include <cstdlib>
 #include <iostream>
 
-using ::Concurrent::ShardedUnorderedMap;
+using ::concurrency::ShardedUnorderedMap;
 
 int main() {
   ShardedUnorderedMap<std::string, std::string> myMap{

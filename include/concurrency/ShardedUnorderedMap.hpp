@@ -1,9 +1,9 @@
 #ifndef SHARDED_UNORDERED_CONCURRENT_MAP
 #define SHARDED_UNORDERED_CONCURRENT_MAP
 
-#include <UnorderedConcurrentMap.h>
+#include <concurrency/UnorderedMap.hpp>
 
-namespace Concurrent {
+namespace concurrency {
   constexpr uint32_t DefaultUnorderedMapShardCount = 32;
 
   // This class provides a sharded, thread-safe, unordered map with most of the same
@@ -305,30 +305,30 @@ namespace Concurrent {
   };
 
   template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-  bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
+  bool operator==(const ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
     return lhs.data() == rhs.data();
   }
 
   template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-  bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
+  bool operator!=(const ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) {
     return !(lhs == rhs);
   }
 
   template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-  bool operator==(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
+  bool operator==(const ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
     return lhs.data() == rhs.data();
   }
 
   template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-  bool operator!=(const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
+  bool operator!=(const ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, const ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &&rhs) {
     return !(lhs == rhs);
   }
 
-  // Specializes the std::swap algorithm for ::Concurrent::ShardedUnorderedMap. Swaps the contents of lhs and rhs. Calls lhs.swap(rhs).
+  // Specializes the std::swap algorithm for ::concurrency::ShardedUnorderedMap. Swaps the contents of lhs and rhs. Calls lhs.swap(rhs).
   template <class Key, class T, uint32_t ShardCount, class Hash, class KeyEqual, class Alloc>
-  void swap(::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, ::Concurrent::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) noexcept {
+  void swap(::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &lhs, ::concurrency::ShardedUnorderedMap<Key, T, ShardCount, Hash, KeyEqual, Alloc> &rhs) noexcept {
     lhs.swap(rhs);
   }
 
-} // namespace Concurrent
+} // namespace concurrency
 #endif // SHARDED_UNORDERED_CONCURRENT_MAP
